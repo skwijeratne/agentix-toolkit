@@ -23,6 +23,7 @@ from collections.abc import AsyncIterator, Sequence
 from typing import Any
 
 from ..model import ToolSchema
+from ..pricing import cost_usd
 from ..streaming import ModelStreamEvent, ResponseComplete, TextDelta
 from ..types import Message, ModelResponse, Role, ToolCall
 
@@ -164,8 +165,7 @@ class AnthropicModel:
 
     # ── Anthropic -> agentix ──────────────────────────────────────────────
 
-    @staticmethod
-    def _translate_response(response: Any) -> ModelResponse:
+    def _translate_response(self, response: Any) -> ModelResponse:
         text_parts: list[str] = []
         tool_calls: list[ToolCall] = []
 
@@ -180,13 +180,21 @@ class AnthropicModel:
             # thinking / other block types are ignored for the loop's purposes
 
         usage = getattr(response, "usage", None)
-        tokens = (usage.input_tokens + usage.output_tokens) if usage else 0
+        input_tokens = usage.input_tokens if usage else 0
+        output_tokens = usage.output_tokens if usage else 0
 
         text = "".join(text_parts)
         if getattr(response, "stop_reason", None) == "refusal":
             text = text or "[The request was declined by a safety classifier.]"
 
-        return ModelResponse(text=text, tool_calls=tool_calls, tokens_used=tokens)
+        return ModelResponse(
+            text=text,
+            tool_calls=tool_calls,
+            tokens_used=input_tokens + output_tokens,
+            input_tokens=input_tokens,
+            output_tokens=output_tokens,
+            cost_usd=cost_usd(self.model, input_tokens, output_tokens),
+        )
 
 
 def _assistant_content(msg: Message) -> Any:

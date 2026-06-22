@@ -10,6 +10,7 @@ from .agent import Agent
 from .concurrency import Limiter, bounded_gather
 from .confirm import ConfirmFn, always_approve, always_deny, console_confirm
 from .context import ContextStrategy, TrimRounds, TruncateToolOutputs
+from .control import Interrupt
 from .errors import AgentError, BudgetExceeded, GuardError, ToolError
 from .events import AgentEvents
 from .executors import LocalToolExecutor, ToolExecutor
@@ -30,6 +31,7 @@ from .guards import (
 from .mcp import MCPServer
 from .model import ModelFn, ToolSchema
 from .policy import AgentPolicy, Tier
+from .pricing import cost_usd, register_price
 from .providers import AnthropicModel, MockModel
 from .serde import message_from_dict, message_to_dict, outcome_from_dict, outcome_to_dict
 from .store import FileStore, MemoryStore, Store
@@ -41,6 +43,7 @@ from .streaming import (
     ToolFinished,
     ToolStarted,
 )
+from .subagents import subagent_tool
 from .tools import Tool, ToolRegistry, tool
 from .types import (
     AgentOutcome,
@@ -73,6 +76,7 @@ __all__ = [
     "GuardError",
     "GuardPipeline",
     "InjectionGuard",
+    "Interrupt",
     "Limiter",
     "LocalToolExecutor",
     "MCPServer",
@@ -106,11 +110,14 @@ __all__ = [
     "always_deny",
     "bounded_gather",
     "console_confirm",
+    "cost_usd",
     "message_from_dict",
     "message_to_dict",
     "outcome_from_dict",
     "outcome_to_dict",
+    "register_price",
     "secure_defaults",
+    "subagent_tool",
     "tool",
     "wrap_as_untrusted_data",
 ]

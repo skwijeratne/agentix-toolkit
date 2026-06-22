@@ -103,6 +103,14 @@ agentix/
   and `TruncateToolOutputs(k)` (clip long tool outputs), both pairing-safe so
   they never break provider tool_use/tool_result pairing. `on_compact` event.
   Closes the unbounded-transcript memory risk. Tests + example 12.
+- **P9 — Subagents.** ✅ `subagent_tool(agent, ...)` exposes a child `Agent` as a
+  delegable `Tool`; composes with the loop, guards, and `bounded_gather`. Tests
+  + example 13.
+- **P10 — Cost + interrupt.** ✅ `pricing` (per-model table + `cost_usd`);
+  `ModelResponse`/`AgentOutcome` carry `cost_usd` (Anthropic adapter fills it);
+  `AgentPolicy.max_budget_usd` aborts; `Interrupt` stops a run/stream at a safe
+  boundary. Tests + example 14. (P8 — permission callbacks — still open; see
+  `PLAN.gaps.md`.)
 
 > ⚠️ Streaming caveat: `on_answer` egress guards (PII redaction) can't un-send
 > already-streamed deltas — deltas are raw; `Done.outcome.answer` is redacted.

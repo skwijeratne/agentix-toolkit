@@ -37,5 +37,11 @@ Initial release.
   and use them in an agent.
 - Context management: `ContextStrategy`, `TrimRounds`, `TruncateToolOutputs`.
 
+### Delegation, cost & control
+- Subagents: `subagent_tool` exposes a child agent as a delegable tool.
+- Cost: `pricing` module + `cost_usd`; `ModelResponse`/`AgentOutcome` carry
+  `cost_usd`; `AgentPolicy.max_budget_usd` aborts a run over budget.
+- `Interrupt` stops a run or stream at the next safe boundary.
+
 [Unreleased]: https://github.com/skwijeratne/agentix/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/skwijeratne/agentix/releases/tag/v0.1.0

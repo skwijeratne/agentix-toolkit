@@ -34,6 +34,7 @@ class AgentPolicy:
     # Resource guards (enforced by the loop).
     max_steps: int = 25
     max_tokens_budget: int = 200_000
+    max_budget_usd: float | None = None  # abort once accumulated cost exceeds this
     tool_timeout_s: float = 30.0
 
     # Sandbox egress restriction, passed to the tool executor.

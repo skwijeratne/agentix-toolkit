@@ -67,6 +67,9 @@ class ModelResponse:
     text: str = ""
     tool_calls: list[ToolCall] = field(default_factory=list)
     tokens_used: int = 0
+    input_tokens: int = 0
+    output_tokens: int = 0
+    cost_usd: float = 0.0  # set by an adapter that knows its model's pricing
 
     @property
     def is_final(self) -> bool:
@@ -82,4 +85,5 @@ class AgentOutcome:
     reason: str | None = None
     steps: int = 0
     tokens_used: int = 0
+    cost_usd: float = 0.0
     transcript: list[Message] = field(default_factory=list)

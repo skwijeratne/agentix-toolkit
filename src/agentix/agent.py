@@ -18,6 +18,7 @@ from typing import Any
 from .concurrency import Limiter
 from .confirm import ConfirmFn
 from .context import ContextStrategy
+from .control import Interrupt
 from .errors import AgentError
 from .events import AgentEvents
 from .executors import ToolExecutor
@@ -104,14 +105,25 @@ class Agent:
 
     # ── public entry points ───────────────────────────────────────────────
 
-    async def run(self, user_request: str, *, run_id: str | None = None) -> AgentOutcome:
+    async def run(
+        self,
+        user_request: str,
+        *,
+        run_id: str | None = None,
+        interrupt: Interrupt | None = None,
+    ) -> AgentOutcome:
         """Run the loop to completion. If ``run_id`` is given and a ``store`` is
-        configured, the run is checkpointed after every step (resumable)."""
+        configured, the run is checkpointed after every step (resumable). Pass an
+        ``Interrupt`` to stop the run at its next safe boundary."""
         messages = self._seed_messages(user_request)
-        return await self._loop(messages, 0, 0, run_id, self.store)
+        return await self._loop(messages, 0, 0, 0.0, run_id, self.store, interrupt)
 
     async def resume(
-        self, run_id: str, *, store: Store | None = None
+        self,
+        run_id: str,
+        *,
+        store: Store | None = None,
+        interrupt: Interrupt | None = None,
     ) -> AgentOutcome:
         """Reload a checkpointed run and continue the loop from where it stopped."""
         effective = store or self.store
@@ -122,7 +134,13 @@ class Agent:
             raise AgentError(f"no saved run found for run_id {run_id!r}")
         messages = transcript_from_dicts(state["messages"])
         return await self._loop(
-            messages, int(state["steps"]), int(state["tokens_used"]), run_id, effective
+            messages,
+            int(state["steps"]),
+            int(state["tokens_used"]),
+            float(state.get("cost_usd", 0.0)),
+            run_id,
+            effective,
+            interrupt,
         )
 
     def run_sync(self, user_request: str, *, run_id: str | None = None) -> AgentOutcome:
@@ -148,7 +166,11 @@ class Agent:
         )
 
     async def stream(
-        self, user_request: str, *, run_id: str | None = None
+        self,
+        user_request: str,
+        *,
+        run_id: str | None = None,
+        interrupt: Interrupt | None = None,
     ) -> AsyncIterator[AgentStreamEvent]:
         """Run the loop, yielding events as they happen: ``AnswerDelta`` text
         chunks, ``ToolStarted``/``ToolFinished`` around tool calls, and a final
@@ -162,8 +184,12 @@ class Agent:
         messages = self._seed_messages(user_request)
         steps = 0
         tokens_used = 0
+        cost_usd = 0.0
 
         while steps < self.policy.max_steps:
+            if interrupt is not None and interrupt.triggered:
+                yield Done(await self._abort("interrupted", steps, tokens_used, cost_usd, messages))
+                return
             steps += 1
 
             messages = await self._compact(messages)
@@ -177,8 +203,10 @@ class Agent:
             await self.events.emit("on_model", messages, response)
 
             tokens_used += response.tokens_used
-            if tokens_used > self.policy.max_tokens_budget:
-                yield Done(await self._abort("budget_exceeded", steps, tokens_used, messages))
+            cost_usd += response.cost_usd
+            stop = self._budget_stop(steps, tokens_used, cost_usd)
+            if stop is not None:
+                yield Done(await self._abort(stop, steps, tokens_used, cost_usd, messages))
                 return
 
             if response.is_final:
@@ -189,10 +217,11 @@ class Agent:
                     answer=answer,
                     steps=steps,
                     tokens_used=tokens_used,
+                    cost_usd=cost_usd,
                     transcript=messages,
                 )
                 await self.events.emit("on_final", outcome)
-                await self._checkpoint(self.store, run_id, steps, tokens_used, messages)
+                await self._checkpoint(self.store, run_id, steps, tokens_used, cost_usd, messages)
                 yield Done(outcome)
                 return
 
@@ -202,9 +231,9 @@ class Agent:
                 msg = await self._handle_call(call)
                 messages.append(msg)
                 yield ToolFinished(msg)
-            await self._checkpoint(self.store, run_id, steps, tokens_used, messages)
+            await self._checkpoint(self.store, run_id, steps, tokens_used, cost_usd, messages)
 
-        yield Done(await self._abort("max_steps_reached", steps, tokens_used, messages))
+        yield Done(await self._abort("max_steps_reached", steps, tokens_used, cost_usd, messages))
 
     # ── the core loop ─────────────────────────────────────────────────────
 
@@ -213,10 +242,15 @@ class Agent:
         messages: list[Message],
         steps: int,
         tokens_used: int,
+        cost_usd: float,
         run_id: str | None,
         store: Store | None,
+        interrupt: Interrupt | None = None,
     ) -> AgentOutcome:
         while steps < self.policy.max_steps:
+            # Cooperative interrupt: checked at a safe boundary (between steps).
+            if interrupt is not None and interrupt.triggered:
+                return await self._abort("interrupted", steps, tokens_used, cost_usd, messages)
             steps += 1
 
             messages = await self._compact(messages)
@@ -224,8 +258,10 @@ class Agent:
                 response = await self.model(messages, tools=self.tool_schemas)
             await self.events.emit("on_model", messages, response)
             tokens_used += response.tokens_used
-            if tokens_used > self.policy.max_tokens_budget:
-                return await self._abort("budget_exceeded", steps, tokens_used, messages)
+            cost_usd += response.cost_usd
+            stop = self._budget_stop(steps, tokens_used, cost_usd)
+            if stop is not None:
+                return await self._abort(stop, steps, tokens_used, cost_usd, messages)
 
             if response.is_final:
                 # GUARD: egress filter on the answer to the user (e.g. PII
@@ -239,6 +275,7 @@ class Agent:
                     answer=answer,
                     steps=steps,
                     tokens_used=tokens_used,
+                    cost_usd=cost_usd,
                     transcript=messages,
                 )
                 await self.events.emit("on_final", outcome)
@@ -249,9 +286,17 @@ class Agent:
                 messages.append(await self._handle_call(call))
 
             # Checkpoint after each completed step so a crash mid-next-step can resume.
-            await self._checkpoint(store, run_id, steps, tokens_used, messages)
+            await self._checkpoint(store, run_id, steps, tokens_used, cost_usd, messages)
 
-        return await self._abort("max_steps_reached", steps, tokens_used, messages)
+        return await self._abort("max_steps_reached", steps, tokens_used, cost_usd, messages)
+
+    def _budget_stop(self, steps: int, tokens_used: int, cost_usd: float) -> str | None:
+        """Return an abort reason if a resource budget is exceeded, else None."""
+        if tokens_used > self.policy.max_tokens_budget:
+            return "budget_exceeded"
+        if self.policy.max_budget_usd is not None and cost_usd > self.policy.max_budget_usd:
+            return "budget_usd_exceeded"
+        return None
 
     async def _model_stream(self, messages: list[Message]) -> AsyncIterator[ModelStreamEvent]:
         """Yield model stream events, falling back to a one-shot call for models
@@ -309,6 +354,7 @@ class Agent:
         run_id: str | None,
         steps: int,
         tokens_used: int,
+        cost_usd: float,
         messages: list[Message],
     ) -> None:
         if store is None or run_id is None:
@@ -320,6 +366,7 @@ class Agent:
                 "schema_version": SCHEMA_VERSION,
                 "steps": steps,
                 "tokens_used": tokens_used,
+                "cost_usd": cost_usd,
                 "messages": transcript_to_dicts(messages),
             },
         )
@@ -389,13 +436,19 @@ class Agent:
         return f"{prefix}About to run '{call.name}' with: {args_preview}. Approve?"
 
     async def _abort(
-        self, reason: str, steps: int, tokens: int, transcript: list[Message]
+        self,
+        reason: str,
+        steps: int,
+        tokens: int,
+        cost_usd: float,
+        transcript: list[Message],
     ) -> AgentOutcome:
         outcome = AgentOutcome(
             status="aborted",
             reason=reason,
             steps=steps,
             tokens_used=tokens,
+            cost_usd=cost_usd,
             transcript=transcript,
         )
         await self.events.emit("on_final", outcome)

@@ -17,6 +17,7 @@ from typing import Any, Optional, Union
 
 from .concurrency import Limiter
 from .confirm import ConfirmFn
+from .context import ContextStrategy
 from .errors import AgentError
 from .events import AgentEvents
 from .executors import ToolExecutor
@@ -71,6 +72,7 @@ class Agent:
         events: Optional[AgentEvents] = None,
         store: Optional[Store] = None,
         model_limiter: Optional[Limiter] = None,
+        context_strategy: Optional[ContextStrategy] = None,
     ) -> None:
         self.model = model
         self.system_prompt = system_prompt
@@ -78,6 +80,8 @@ class Agent:
         self.store = store
         # Optional shared limiter to bound concurrent model calls across a fleet.
         self.model_limiter = model_limiter
+        # Optional compaction applied before each model call (opt-in).
+        self.context_strategy = context_strategy
 
         # Guards are opt-in: no guards -> a clean loop. Pass
         # `guards=secure_defaults()` (or your own list) to turn on protections.
@@ -162,6 +166,7 @@ class Agent:
         while steps < self.policy.max_steps:
             steps += 1
 
+            messages = await self._compact(messages)
             response: Optional[ModelResponse] = None
             async for event in self._model_stream(messages):
                 if isinstance(event, TextDelta):
@@ -214,6 +219,7 @@ class Agent:
         while steps < self.policy.max_steps:
             steps += 1
 
+            messages = await self._compact(messages)
             async with self._model_slot():
                 response = await self.model(messages, tools=self.tool_schemas)
             await self.events.emit("on_model", messages, response)
@@ -266,6 +272,16 @@ class Agent:
     def _model_slot(self) -> AbstractAsyncContextManager[Any]:
         """The limiter context, or a no-op when no limiter is configured."""
         return self.model_limiter if self.model_limiter is not None else nullcontext()
+
+    async def _compact(self, messages: list[Message]) -> list[Message]:
+        """Apply the context strategy (if any) before a model call."""
+        if self.context_strategy is None:
+            return messages
+        before = len(messages)
+        compacted = await self.context_strategy.compact(messages)
+        if compacted is not messages:  # strategy signals a change by new identity
+            await self.events.emit("on_compact", before, len(compacted))
+        return compacted
 
     def _seed_messages(self, user_request: str) -> list[Message]:
         # Trust boundary: only the system prompt and the genuine user request

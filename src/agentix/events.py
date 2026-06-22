@@ -27,6 +27,7 @@ class AgentEvents:
     on_guard_decision: _Cb = None  # (call: ToolCall, decision)
     on_confirm: _Cb = None        # (call: ToolCall, approved: bool)
     on_tool_result: _Cb = None    # (call: ToolCall, result: Message)
+    on_compact: _Cb = None        # (before_count: int, after_count: int)
     on_final: _Cb = None          # (outcome: AgentOutcome)
 
     async def emit(self, name: str, *args: Any) -> None:

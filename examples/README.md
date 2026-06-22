@@ -22,6 +22,7 @@ PYTHONPATH=src python examples/01_hello_agent.py
 | `09_streaming.py` | `Agent.stream()`: live answer deltas + tool events + terminal `Done`. | — |
 | `10_concurrency.py` | Running many agents safely: `bounded_gather` + a shared `Limiter`. | — |
 | `11_mcp.py` | Connect to an MCP server and use its tools in an agent. | `agentix[mcp,anthropic]` + a server + `ANTHROPIC_API_KEY` |
+| `12_context.py` | Bound the transcript with `TrimRounds` / `TruncateToolOutputs`. | — |
 
 To run the Anthropic example:
 

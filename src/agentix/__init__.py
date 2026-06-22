@@ -9,6 +9,7 @@ from __future__ import annotations
 from .agent import Agent
 from .concurrency import Limiter, bounded_gather
 from .confirm import ConfirmFn, always_approve, always_deny, console_confirm
+from .context import ContextStrategy, TrimRounds, TruncateToolOutputs
 from .errors import AgentError, BudgetExceeded, GuardError, ToolError
 from .events import AgentEvents
 from .executors import LocalToolExecutor, ToolExecutor
@@ -63,6 +64,7 @@ __all__ = [
     "AnthropicModel",
     "BudgetExceeded",
     "ConfirmFn",
+    "ContextStrategy",
     "Decision",
     "Done",
     "FileStore",
@@ -96,6 +98,8 @@ __all__ = [
     "ToolResult",
     "ToolSchema",
     "ToolStarted",
+    "TrimRounds",
+    "TruncateToolOutputs",
     "UntrustedDataGuard",
     "__version__",
     "always_approve",

@@ -94,6 +94,11 @@ agentix/
   tools as agentix `Tool`s (`inputSchema` → `parameters`), and routes calls over
   the live session — plugs into `Agent(tools=...)`. Tests + example 11.
   Roadmap for further gaps vs. the Anthropic Agent SDK: see `PLAN.gaps.md`.
+- **P7 — Context management.** ✅ Pluggable `ContextStrategy` applied before each
+  model call (opt-in). `TrimRounds(n)` (keep system + task + last n tool rounds)
+  and `TruncateToolOutputs(k)` (clip long tool outputs), both pairing-safe so
+  they never break provider tool_use/tool_result pairing. `on_compact` event.
+  Closes the unbounded-transcript memory risk. Tests + example 12.
 
 > ⚠️ Streaming caveat: `on_answer` egress guards (PII redaction) can't un-send
 > already-streamed deltas — deltas are raw; `Done.outcome.answer` is redacted.

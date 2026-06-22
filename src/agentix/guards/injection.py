@@ -12,7 +12,7 @@ data to reason *about*, never instructions to follow.
 from __future__ import annotations
 
 import re
-from typing import Callable
+from collections.abc import Callable
 
 from ..types import ToolCall
 from .base import Guard, GuardContext

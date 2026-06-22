@@ -20,7 +20,7 @@ Notes on the translation:
 from __future__ import annotations
 
 from collections.abc import AsyncIterator, Sequence
-from typing import Any, Optional
+from typing import Any
 
 from ..model import ToolSchema
 from ..streaming import ModelStreamEvent, ResponseComplete, TextDelta
@@ -49,7 +49,7 @@ class AnthropicModel:
         *,
         model: str = DEFAULT_MODEL,
         max_tokens: int = 4096,
-        api_key: Optional[str] = None,
+        api_key: str | None = None,
         client: Any = None,
         **extra: Any,
     ) -> None:

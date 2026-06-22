@@ -18,11 +18,10 @@ from __future__ import annotations
 
 from collections.abc import AsyncIterator, Sequence
 from dataclasses import dataclass
-from typing import Protocol, Union, runtime_checkable
+from typing import Protocol, runtime_checkable
 
 from .model import ToolSchema
 from .types import AgentOutcome, Message, ModelResponse, ToolCall
-
 
 # ── model-level stream events ─────────────────────────────────────────────
 
@@ -37,7 +36,7 @@ class ResponseComplete:
     response: ModelResponse
 
 
-ModelStreamEvent = Union[TextDelta, ResponseComplete]
+ModelStreamEvent = TextDelta | ResponseComplete
 
 
 @runtime_checkable
@@ -78,7 +77,7 @@ class Done:
     outcome: AgentOutcome
 
 
-AgentStreamEvent = Union[AnswerDelta, ToolStarted, ToolFinished, Done]
+AgentStreamEvent = AnswerDelta | ToolStarted | ToolFinished | Done
 
 
 def chunk_text(text: str) -> list[str]:

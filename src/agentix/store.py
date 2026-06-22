@@ -11,18 +11,19 @@ The persisted ``state`` is a plain JSON-able dict (see :mod:`agentix.serde`):
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import json
 import os
 import tempfile
 from pathlib import Path
-from typing import Any, Optional, Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 
 @runtime_checkable
 class Store(Protocol):
     async def save(self, run_id: str, state: dict[str, Any]) -> None: ...
 
-    async def load(self, run_id: str) -> Optional[dict[str, Any]]: ...
+    async def load(self, run_id: str) -> dict[str, Any] | None: ...
 
 
 class MemoryStore:
@@ -35,7 +36,7 @@ class MemoryStore:
         # Round-trip through JSON so callers can't mutate stored state by ref.
         self._data[run_id] = json.loads(json.dumps(state))
 
-    async def load(self, run_id: str) -> Optional[dict[str, Any]]:
+    async def load(self, run_id: str) -> dict[str, Any] | None:
         state = self._data.get(run_id)
         return json.loads(json.dumps(state)) if state is not None else None
 
@@ -65,7 +66,7 @@ class FileStore:
     async def save(self, run_id: str, state: dict[str, Any]) -> None:
         await asyncio.to_thread(self._save_sync, run_id, state)
 
-    async def load(self, run_id: str) -> Optional[dict[str, Any]]:
+    async def load(self, run_id: str) -> dict[str, Any] | None:
         return await asyncio.to_thread(self._load_sync, run_id)
 
     def _save_sync(self, run_id: str, state: dict[str, Any]) -> None:
@@ -81,14 +82,13 @@ class FileStore:
                 os.fsync(f.fileno())  # durable before we swap it in
             os.replace(tmp, target)  # atomic rename
         except BaseException:
-            try:
+            with contextlib.suppress(OSError):
                 os.unlink(tmp)
-            except OSError:
-                pass
             raise
 
-    def _load_sync(self, run_id: str) -> Optional[dict[str, Any]]:
+    def _load_sync(self, run_id: str) -> dict[str, Any] | None:
         f = self._file(run_id)
         if not f.exists():
             return None
-        return json.loads(f.read_text(encoding="utf-8"))
+        data: dict[str, Any] = json.loads(f.read_text(encoding="utf-8"))
+        return data

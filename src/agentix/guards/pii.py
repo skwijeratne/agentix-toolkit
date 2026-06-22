@@ -13,7 +13,7 @@ loose for redacting free text without false positives).
 from __future__ import annotations
 
 import re
-from typing import Optional, Sequence
+from collections.abc import Sequence
 
 from ..types import ToolCall
 from .base import Decision, Guard, GuardContext
@@ -31,10 +31,10 @@ DEFAULT_REDACTION_PATTERNS = [
 
 
 class PiiUrlGuard(Guard):
-    def __init__(self, patterns: Optional[Sequence[str]] = None) -> None:
+    def __init__(self, patterns: Sequence[str] | None = None) -> None:
         # If None, the policy's pii_patterns are used at call time.
         self._patterns = list(patterns) if patterns is not None else None
-        self._compiled_for: Optional[tuple[str, ...]] = None
+        self._compiled_for: tuple[str, ...] | None = None
         self._compiled: list[re.Pattern[str]] = []
 
     def _compile(self, patterns: Sequence[str]) -> list[re.Pattern[str]]:
@@ -69,7 +69,7 @@ class PiiRedactionGuard(Guard):
 
     def __init__(
         self,
-        patterns: Optional[Sequence[str]] = None,
+        patterns: Sequence[str] | None = None,
         *,
         mask: str = "[REDACTED]",
     ) -> None:

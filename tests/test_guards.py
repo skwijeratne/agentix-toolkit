@@ -2,9 +2,9 @@ from agentix import (
     Agent,
     AgentEvents,
     AgentPolicy,
-    Decision,
     MockModel,
     ModelResponse,
+    PiiRedactionGuard,
     RecipientTrustGuard,
     Role,
     ToolCall,
@@ -13,7 +13,6 @@ from agentix import (
     secure_defaults,
     tool,
 )
-from agentix import PiiRedactionGuard
 from agentix.guards import GuardContext, InjectionGuard, PiiUrlGuard, TierGuard, UntrustedDataGuard
 
 

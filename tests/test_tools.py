@@ -1,4 +1,4 @@
-from typing import Literal, Optional
+from typing import Literal
 
 from agentix import Agent, MockModel, ModelResponse, Role, Tool, ToolCall, ToolRegistry, tool
 
@@ -20,7 +20,10 @@ def test_bare_decorator_generates_schema_from_hints_and_docstring() -> None:
 
     params = get_weather.parameters
     assert params["type"] == "object"
-    assert params["properties"]["city"] == {"type": "string", "description": "City name, e.g. 'Paris'."}
+    assert params["properties"]["city"] == {
+        "type": "string",
+        "description": "City name, e.g. 'Paris'.",
+    }
     assert params["properties"]["days"]["type"] == "integer"
     # `city` is required (no default); `days` is optional (has a default).
     assert params["required"] == ["city"]
@@ -50,7 +53,7 @@ def test_type_mapping() -> None:
 
 def test_optional_and_literal() -> None:
     @tool
-    def search(query: str, sort: Literal["new", "top"] = "new", limit: Optional[int] = None) -> str:
+    def search(query: str, sort: Literal["new", "top"] = "new", limit: int | None = None) -> str:
         """Search.
 
         Args:

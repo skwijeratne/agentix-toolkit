@@ -7,8 +7,8 @@ web/server app await a real user decision without blocking the event loop.
 
 from __future__ import annotations
 
-from collections.abc import Awaitable
-from typing import Callable, Union
+from collections.abc import Awaitable, Callable
+from typing import Union
 
 #: Returns True to approve. Sync or async; the loop awaits awaitable results.
 ConfirmFn = Callable[[str], Union[bool, "Awaitable[bool]"]]

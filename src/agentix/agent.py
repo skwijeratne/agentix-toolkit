@@ -13,7 +13,7 @@ import asyncio
 import inspect
 from collections.abc import AsyncIterator, Iterable, Sequence
 from contextlib import AbstractAsyncContextManager, nullcontext
-from typing import Any, Optional, Union
+from typing import Any
 
 from .concurrency import Limiter
 from .confirm import ConfirmFn
@@ -63,16 +63,16 @@ class Agent:
         *,
         model: ModelFn,
         system_prompt: str,
-        policy: Optional[AgentPolicy] = None,
-        tools: Optional[Union[ToolRegistry, Iterable[Tool]]] = None,
-        tool_executor: Optional[ToolExecutor] = None,
-        tool_schemas: Optional[Sequence[ToolSchema]] = None,
-        guards: Optional[Iterable[Guard]] = None,
-        confirm_fn: Optional[ConfirmFn] = None,
-        events: Optional[AgentEvents] = None,
-        store: Optional[Store] = None,
-        model_limiter: Optional[Limiter] = None,
-        context_strategy: Optional[ContextStrategy] = None,
+        policy: AgentPolicy | None = None,
+        tools: ToolRegistry | Iterable[Tool] | None = None,
+        tool_executor: ToolExecutor | None = None,
+        tool_schemas: Sequence[ToolSchema] | None = None,
+        guards: Iterable[Guard] | None = None,
+        confirm_fn: ConfirmFn | None = None,
+        events: AgentEvents | None = None,
+        store: Store | None = None,
+        model_limiter: Limiter | None = None,
+        context_strategy: ContextStrategy | None = None,
     ) -> None:
         self.model = model
         self.system_prompt = system_prompt
@@ -104,14 +104,14 @@ class Agent:
 
     # ── public entry points ───────────────────────────────────────────────
 
-    async def run(self, user_request: str, *, run_id: Optional[str] = None) -> AgentOutcome:
+    async def run(self, user_request: str, *, run_id: str | None = None) -> AgentOutcome:
         """Run the loop to completion. If ``run_id`` is given and a ``store`` is
         configured, the run is checkpointed after every step (resumable)."""
         messages = self._seed_messages(user_request)
         return await self._loop(messages, 0, 0, run_id, self.store)
 
     async def resume(
-        self, run_id: str, *, store: Optional[Store] = None
+        self, run_id: str, *, store: Store | None = None
     ) -> AgentOutcome:
         """Reload a checkpointed run and continue the loop from where it stopped."""
         effective = store or self.store
@@ -125,7 +125,7 @@ class Agent:
             messages, int(state["steps"]), int(state["tokens_used"]), run_id, effective
         )
 
-    def run_sync(self, user_request: str, *, run_id: Optional[str] = None) -> AgentOutcome:
+    def run_sync(self, user_request: str, *, run_id: str | None = None) -> AgentOutcome:
         """Blocking convenience wrapper for scripts/CLIs. Do not call from
         inside a running event loop."""
         try:
@@ -136,7 +136,7 @@ class Agent:
             "run_sync() cannot be called from a running event loop; await run() instead."
         )
 
-    def resume_sync(self, run_id: str, *, store: Optional[Store] = None) -> AgentOutcome:
+    def resume_sync(self, run_id: str, *, store: Store | None = None) -> AgentOutcome:
         """Blocking wrapper around :meth:`resume`. Do not call from inside a
         running event loop."""
         try:
@@ -148,7 +148,7 @@ class Agent:
         )
 
     async def stream(
-        self, user_request: str, *, run_id: Optional[str] = None
+        self, user_request: str, *, run_id: str | None = None
     ) -> AsyncIterator[AgentStreamEvent]:
         """Run the loop, yielding events as they happen: ``AnswerDelta`` text
         chunks, ``ToolStarted``/``ToolFinished`` around tool calls, and a final
@@ -167,7 +167,7 @@ class Agent:
             steps += 1
 
             messages = await self._compact(messages)
-            response: Optional[ModelResponse] = None
+            response: ModelResponse | None = None
             async for event in self._model_stream(messages):
                 if isinstance(event, TextDelta):
                     yield AnswerDelta(event.text)
@@ -213,8 +213,8 @@ class Agent:
         messages: list[Message],
         steps: int,
         tokens_used: int,
-        run_id: Optional[str],
-        store: Optional[Store],
+        run_id: str | None,
+        store: Store | None,
     ) -> AgentOutcome:
         while steps < self.policy.max_steps:
             steps += 1
@@ -305,8 +305,8 @@ class Agent:
 
     async def _checkpoint(
         self,
-        store: Optional[Store],
-        run_id: Optional[str],
+        store: Store | None,
+        run_id: str | None,
         steps: int,
         tokens_used: int,
         messages: list[Message],

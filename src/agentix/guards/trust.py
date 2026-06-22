@@ -11,7 +11,7 @@ trusted everything). Supply ``is_trusted`` to whitelist legitimate destinations.
 
 from __future__ import annotations
 
-from typing import Callable, Optional
+from collections.abc import Callable
 
 from ..types import ToolCall
 from .base import Decision, Guard, GuardContext
@@ -33,7 +33,7 @@ TrustPredicate = Callable[[ToolCall], bool]
 
 
 class RecipientTrustGuard(Guard):
-    def __init__(self, is_trusted: Optional[TrustPredicate] = None) -> None:
+    def __init__(self, is_trusted: TrustPredicate | None = None) -> None:
         self._is_trusted = is_trusted
 
     async def before_call(self, call: ToolCall, ctx: GuardContext) -> Decision:

@@ -11,7 +11,8 @@ registry (P2); a model that takes no tools simply ignores it.
 
 from __future__ import annotations
 
-from typing import Any, Protocol, Sequence, runtime_checkable
+from collections.abc import Sequence
+from typing import Any, Protocol, runtime_checkable
 
 from .types import Message, ModelResponse
 

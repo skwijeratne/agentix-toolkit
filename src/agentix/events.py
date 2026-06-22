@@ -9,13 +9,13 @@ callbacks are simply skipped.
 from __future__ import annotations
 
 import inspect
-from collections.abc import Awaitable
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
-from typing import Any, Callable, Optional, Union
+from typing import Any
 
 from .types import AgentOutcome, Message, ModelResponse, ToolCall
 
-_Cb = Optional[Callable[..., Union[None, "Awaitable[None]"]]]
+_Cb = Callable[..., Awaitable[None] | None] | None
 
 
 @dataclass

@@ -43,7 +43,7 @@ class Limiter(AbstractAsyncContextManager["Limiter"]):
         self.max_concurrency = max_concurrency
         self._sem = asyncio.Semaphore(max_concurrency)
 
-    async def __aenter__(self) -> "Limiter":
+    async def __aenter__(self) -> Limiter:
         await self._sem.acquire()
         return self
 

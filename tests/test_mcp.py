@@ -11,7 +11,6 @@ from agentix import (
     ToolCall,
 )
 
-
 # ── a fake MCP ClientSession (duck-typed like mcp.ClientSession) ─────────
 
 

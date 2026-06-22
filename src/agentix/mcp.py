@@ -19,8 +19,9 @@ adapter (e.g. Anthropic's ``input_schema``) unchanged.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from contextlib import AsyncExitStack
-from typing import Any, Optional, Sequence
+from typing import Any
 
 from .errors import AgentError
 from .tools import Tool
@@ -58,12 +59,12 @@ class MCPServer:
     def __init__(
         self,
         *,
-        command: Optional[str] = None,
-        args: Optional[Sequence[str]] = None,
-        env: Optional[dict[str, str]] = None,
-        url: Optional[str] = None,
-        transport: Optional[str] = None,
-        name: Optional[str] = None,
+        command: str | None = None,
+        args: Sequence[str] | None = None,
+        env: dict[str, str] | None = None,
+        url: str | None = None,
+        transport: str | None = None,
+        name: str | None = None,
         session: Any = None,
     ) -> None:
         self.name = name
@@ -76,11 +77,11 @@ class MCPServer:
         )
         self._provided_session = session
         self._session: Any = None
-        self._stack: Optional[AsyncExitStack] = None
+        self._stack: AsyncExitStack | None = None
 
     # ── lifecycle ─────────────────────────────────────────────────────────
 
-    async def __aenter__(self) -> "MCPServer":
+    async def __aenter__(self) -> MCPServer:
         await self.connect()
         return self
 

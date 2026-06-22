@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 
 class Role(str, Enum):
@@ -33,7 +33,7 @@ class Message:
     role: Role
     content: str
     trusted: bool = False
-    name: Optional[str] = None  # tool name, for tool-result messages
+    name: str | None = None  # tool name, for tool-result messages
     meta: dict[str, Any] = field(default_factory=dict)
 
 
@@ -43,7 +43,7 @@ class ToolCall:
 
     name: str
     args: dict[str, Any] = field(default_factory=dict)
-    id: Optional[str] = None
+    id: str | None = None
 
 
 @dataclass
@@ -52,7 +52,7 @@ class ToolResult:
 
     name: str
     content: str
-    call_id: Optional[str] = None
+    call_id: str | None = None
     ok: bool = True
 
 
@@ -78,8 +78,8 @@ class AgentOutcome:
     """Terminal result of an agent run."""
 
     status: str  # "completed" | "aborted" | "refused"
-    answer: Optional[str] = None
-    reason: Optional[str] = None
+    answer: str | None = None
+    reason: str | None = None
     steps: int = 0
     tokens_used: int = 0
     transcript: list[Message] = field(default_factory=list)

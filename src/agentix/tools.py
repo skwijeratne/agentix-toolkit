@@ -26,8 +26,8 @@ import functools
 import inspect
 import types as _types
 import typing
-from collections.abc import Callable, Iterable, Sequence
-from typing import Any, Literal, Optional, Union
+from collections.abc import Iterable, Sequence
+from typing import Any, Literal, Union
 
 from .executors import LocalToolExecutor, ToolFn
 from .model import ToolSchema
@@ -74,10 +74,10 @@ class Tool:
 
 
 def tool(
-    func: Optional[ToolFn] = None,
+    func: ToolFn | None = None,
     *,
-    name: Optional[str] = None,
-    description: Optional[str] = None,
+    name: str | None = None,
+    description: str | None = None,
 ) -> Any:
     """Decorator that turns a function into a :class:`Tool`.
 
@@ -104,7 +104,7 @@ class ToolRegistry:
 
     def __init__(self, tools: Iterable[Tool | ToolFn] = ()) -> None:
         self._tools: dict[str, Tool] = {}
-        self._executor: Optional[LocalToolExecutor] = None
+        self._executor: LocalToolExecutor | None = None
         for t in tools:
             self.add(t)
 
@@ -155,7 +155,7 @@ _PRIMITIVES: dict[type, str] = {
 
 
 def _build_tool(
-    fn: ToolFn, *, name: Optional[str], description: Optional[str]
+    fn: ToolFn, *, name: str | None, description: str | None
 ) -> Tool:
     sig = inspect.signature(fn)
     try:

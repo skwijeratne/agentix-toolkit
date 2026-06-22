@@ -6,8 +6,6 @@ Guards are opt-in: an ``Agent`` with no ``guards`` runs a clean loop. Pass
 
 from __future__ import annotations
 
-from typing import Optional
-
 from ..policy import AgentPolicy
 from .base import Decision, DecisionType, Guard, GuardContext, GuardPipeline
 from .injection import (
@@ -42,7 +40,7 @@ __all__ = [
 ]
 
 
-def secure_defaults(policy: Optional[AgentPolicy] = None) -> list[Guard]:
+def secure_defaults(policy: AgentPolicy | None = None) -> list[Guard]:
     """A conservative, non-destructive default pipeline:
 
       * :class:`TierGuard` — enforce prohibited / confirm-first tiers.

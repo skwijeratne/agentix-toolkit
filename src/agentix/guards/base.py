@@ -15,9 +15,9 @@ ladder with composable, swappable objects.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
 from enum import Enum
-from typing import Sequence
 
 from ..policy import AgentPolicy
 from ..types import ToolCall
@@ -37,15 +37,15 @@ class Decision:
     reason: str = ""
 
     @classmethod
-    def allow(cls) -> "Decision":
+    def allow(cls) -> Decision:
         return cls(DecisionType.ALLOW)
 
     @classmethod
-    def deny(cls, reason: str) -> "Decision":
+    def deny(cls, reason: str) -> Decision:
         return cls(DecisionType.DENY, reason)
 
     @classmethod
-    def confirm(cls, reason: str = "") -> "Decision":
+    def confirm(cls, reason: str = "") -> Decision:
         return cls(DecisionType.CONFIRM, reason)
 
     @property

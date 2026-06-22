@@ -34,12 +34,7 @@ jobs:
           enable-cache: true
       # --all-extras so mypy can resolve the optional anthropic/mcp imports.
       - run: uv sync --all-extras
-      # NOTE: ruff and mypy --strict have not been run locally (no toolchain in
-      # the dev sandbox). They are advisory until verified green on a real run,
-      # then remove `continue-on-error` to make them blocking gates.
       - name: ruff
         run: uv run ruff check src tests
-        continue-on-error: true
       - name: mypy (strict)
         run: uv run mypy
-        continue-on-error: true

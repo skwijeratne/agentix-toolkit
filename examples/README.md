@@ -1,13 +1,13 @@
 # agentix examples
 
 Examples 01–04 are dependency-free (they use `MockModel`, so no API key needed).
-From the repo root:
+From the repo root, after `uv sync`:
 
 ```bash
-PYTHONPATH=src python examples/01_hello_agent.py
+uv run python examples/01_hello_agent.py
 ```
 
-(or `pip install -e .` first, then drop the `PYTHONPATH=src` prefix.)
+(Without uv: `pip install -e .`, then `python examples/01_hello_agent.py`.)
 
 | File | Shows | Needs |
 |------|-------|-------|

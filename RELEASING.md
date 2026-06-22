@@ -25,11 +25,10 @@ The release workflow publishes via OIDC (no stored token).
 
 ## Dry run (recommended first time)
 
-Test the build locally before tagging:
+Test the build locally before tagging (this project uses [uv](https://docs.astral.sh/uv/)):
 ```bash
-pip install build twine
-python -m build
-twine check dist/*
+uv build
+uvx twine check dist/*
 ```
 To rehearse the upload end-to-end, publish to **TestPyPI** first
-(`twine upload --repository testpypi dist/*`) and `pip install` from there.
+(`uvx twine upload --repository testpypi dist/*`) and install from there.

@@ -24,9 +24,14 @@ classifiers = [
 ]
 dependencies = []
 
+# Runtime extras (installed on demand): the optional provider/integration deps.
 [project.optional-dependencies]
 anthropic = ["anthropic>=0.40"]
 mcp = ["mcp>=1.0"]
+
+# Dev tooling lives in a PEP 735 dependency group, installed by `uv sync`
+# (uv includes the `dev` group by default). Not published as an extra.
+[dependency-groups]
 dev = [
     "pytest>=8",
     "pytest-asyncio>=0.24",

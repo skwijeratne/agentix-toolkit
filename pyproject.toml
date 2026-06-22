@@ -9,7 +9,7 @@ description = "A generic, batteries-included agent toolkit: configure the loop, 
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
-authors = [{ name = "Sanjiva Wijeratne", email = "skwijeratne@gmail.com" }]
+authors = [{ name = "Sanjaya Wijeratne", email = "skwijeratne@gmail.com" }]
 keywords = ["agent", "llm", "agents", "tools", "ai", "toolkit", "guardrails"]
 classifiers = [
     "Development Status :: 3 - Alpha",

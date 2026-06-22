@@ -1,0 +1,34 @@
+# agentix examples
+
+Examples 01–04 are dependency-free (they use `MockModel`, so no API key needed).
+From the repo root:
+
+```bash
+PYTHONPATH=src python examples/01_hello_agent.py
+```
+
+(or `pip install -e .` first, then drop the `PYTHONPATH=src` prefix.)
+
+| File | Shows | Needs |
+|------|-------|-------|
+| `01_hello_agent.py` | The minimal loop — a model that just answers. | — |
+| `02_tool_use.py` | Registering a tool and a tool→answer round trip. | — |
+| `03_async_dynamic_loop.py` | An `async` tool + a model that reacts to the conversation. | — |
+| `04_policy_and_trust.py` | `AgentPolicy` step budget and the trusted/untrusted boundary. | — |
+| `05_anthropic_model.py` | A live Claude-backed agent with a `@tool`. | `agentix[anthropic]` + `ANTHROPIC_API_KEY` |
+| `06_tool_decorator.py` | The `@tool` decorator: schema from type hints + docstring, optionals, `Literal`/enum, lists. | — |
+| `07_guards.py` | The guard subsystem: tiers, confirmation, PII/injection defense, untrusted-data wrap, audit events. | — |
+| `08_persistence.py` | Checkpoint a run to a `FileStore` and `resume` it after an interruption. | — |
+| `09_streaming.py` | `Agent.stream()`: live answer deltas + tool events + terminal `Done`. | — |
+| `10_concurrency.py` | Running many agents safely: `bounded_gather` + a shared `Limiter`. | — |
+
+To run the Anthropic example:
+
+```bash
+pip install "agentix[anthropic]"
+export ANTHROPIC_API_KEY=sk-ant-...
+python examples/05_anthropic_model.py
+```
+
+> These cover P0–P5 (streaming + persistence included). Remaining before a
+> `0.1.0` release: real CI, docs site, and publishing to PyPI.

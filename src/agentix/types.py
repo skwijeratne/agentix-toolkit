@@ -1,0 +1,85 @@
+"""Core data types shared across the agent loop.
+
+These are plain, framework-agnostic dataclasses. Provider adapters translate
+between these and a vendor's wire format; the loop only ever sees these.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from enum import Enum
+from typing import Any, Optional
+
+
+class Role(str, Enum):
+    """Author of a conversation message."""
+
+    SYSTEM = "system"
+    USER = "user"
+    ASSISTANT = "assistant"
+    TOOL = "tool"
+
+
+@dataclass
+class Message:
+    """A single conversation message.
+
+    ``trusted`` marks whether the content originated from the real user
+    (an instruction source) rather than from tool output (data to reason
+    *about*, never instructions to follow). The loop sets this; guards and
+    the security subsystem rely on it.
+    """
+
+    role: Role
+    content: str
+    trusted: bool = False
+    name: Optional[str] = None  # tool name, for tool-result messages
+    meta: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
+class ToolCall:
+    """A tool invocation requested by the model."""
+
+    name: str
+    args: dict[str, Any] = field(default_factory=dict)
+    id: Optional[str] = None
+
+
+@dataclass
+class ToolResult:
+    """The outcome of executing a single :class:`ToolCall`."""
+
+    name: str
+    content: str
+    call_id: Optional[str] = None
+    ok: bool = True
+
+
+@dataclass
+class ModelResponse:
+    """What a model adapter returns each turn.
+
+    A response carries assistant ``text`` and/or one or more ``tool_calls``.
+    When there are no tool calls the turn is final.
+    """
+
+    text: str = ""
+    tool_calls: list[ToolCall] = field(default_factory=list)
+    tokens_used: int = 0
+
+    @property
+    def is_final(self) -> bool:
+        return not self.tool_calls
+
+
+@dataclass
+class AgentOutcome:
+    """Terminal result of an agent run."""
+
+    status: str  # "completed" | "aborted" | "refused"
+    answer: Optional[str] = None
+    reason: Optional[str] = None
+    steps: int = 0
+    tokens_used: int = 0
+    transcript: list[Message] = field(default_factory=list)

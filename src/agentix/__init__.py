@@ -26,6 +26,7 @@ from .guards import (
     secure_defaults,
     wrap_as_untrusted_data,
 )
+from .mcp import MCPServer
 from .model import ModelFn, ToolSchema
 from .policy import AgentPolicy, Tier
 from .providers import AnthropicModel, MockModel
@@ -72,6 +73,7 @@ __all__ = [
     "InjectionGuard",
     "Limiter",
     "LocalToolExecutor",
+    "MCPServer",
     "Message",
     "MemoryStore",
     "MockModel",

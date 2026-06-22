@@ -21,6 +21,7 @@ PYTHONPATH=src python examples/01_hello_agent.py
 | `08_persistence.py` | Checkpoint a run to a `FileStore` and `resume` it after an interruption. | — |
 | `09_streaming.py` | `Agent.stream()`: live answer deltas + tool events + terminal `Done`. | — |
 | `10_concurrency.py` | Running many agents safely: `bounded_gather` + a shared `Limiter`. | — |
+| `11_mcp.py` | Connect to an MCP server and use its tools in an agent. | `agentix[mcp,anthropic]` + a server + `ANTHROPIC_API_KEY` |
 
 To run the Anthropic example:
 

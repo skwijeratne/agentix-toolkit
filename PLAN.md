@@ -89,6 +89,11 @@ agentix/
     `run(..., run_id=)`, and `resume()` / `resume_sync()`.
   - ☐ Real CI (pytest + mypy --strict + ruff on 3.10–3.13), docs site,
     `CHANGELOG`, build + publish `0.1.0` to TestPyPI then PyPI.
+- **P6 — MCP client support.** ✅ `MCPServer` connects to an MCP server
+  (stdio / HTTP / SSE, lazy `mcp` import behind `agentix[mcp]`), discovers its
+  tools as agentix `Tool`s (`inputSchema` → `parameters`), and routes calls over
+  the live session — plugs into `Agent(tools=...)`. Tests + example 11.
+  Roadmap for further gaps vs. the Anthropic Agent SDK: see `PLAN.gaps.md`.
 
 > ⚠️ Streaming caveat: `on_answer` egress guards (PII redaction) can't un-send
 > already-streamed deltas — deltas are raw; `Done.outcome.answer` is redacted.

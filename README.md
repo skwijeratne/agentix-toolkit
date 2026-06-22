@@ -1,5 +1,7 @@
 # agentix
 
+[![CI](https://github.com/skwijeratne/agentix/actions/workflows/ci.yml/badge.svg)](https://github.com/skwijeratne/agentix/actions/workflows/ci.yml)
+
 A generic, batteries-included **agent toolkit**. The agent loop, tool-calling,
 guards, and observability are wiring you *configure* — not boilerplate you
 rewrite for every project.
@@ -45,12 +47,26 @@ Everyone re-codes the same agentic loop, tool dispatch, and safety checks.
 `agentix` keeps the loop thin and shared, and makes everything load-bearing —
 the model, the tools, the guards — injectable and declarative.
 
+## Development
+
+```bash
+pip install -e ".[dev]"
+pytest                 # run the test suite
+ruff check src tests   # lint
+mypy                   # type-check (strict)
+```
+
+See [`examples/`](./examples) for runnable end-to-end demos and
+[`RELEASING.md`](./RELEASING.md) for the publish process.
+
 ## Roadmap
 
-See [`PLAN.md`](./PLAN.md). Done: core types, packaging, and the async loop with
-budget guards (P0–P1). Next: the `@tool` decorator and registry (P2), then the
-guard subsystem (P3) and the Anthropic adapter (P4).
+See [`PLAN.md`](./PLAN.md). Implemented: the async loop, `@tool` system, opt-in
+guard subsystem, Anthropic adapter, streaming, persistence, concurrency
+backpressure, MCP client support, and context management (P0–P7). Remaining:
+finishing the release (CI is set up; publish to PyPI).
 
 ## License
 
 MIT
+

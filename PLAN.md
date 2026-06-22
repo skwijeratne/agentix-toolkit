@@ -87,8 +87,15 @@ agentix/
   - ✅ **Persistence/resume** — pluggable `Store` (`MemoryStore`, `FileStore`),
     a JSON codec for the core types (`serde`), per-step checkpointing via
     `run(..., run_id=)`, and `resume()` / `resume_sync()`.
-  - ☐ Real CI (pytest + mypy --strict + ruff on 3.10–3.13), docs site,
-    `CHANGELOG`, build + publish `0.1.0` to TestPyPI then PyPI.
+  - ◑ CI + release machinery authored: `.github/workflows/ci.yml`
+    (pytest matrix 3.10–3.13 blocking; ruff + mypy --strict advisory until
+    verified green on a real run), `.github/workflows/release.yml` (build +
+    `twine check` + PyPI Trusted Publishing on `v*` tags), `LICENSE`,
+    `CHANGELOG.md`, `RELEASING.md`. **Not yet run on real infra** — the dev
+    sandbox has no pip/toolchain, so first CI run is the first real
+    pytest/ruff/mypy execution; expect a lint/type cleanup pass then.
+  - ☐ Push to a remote, watch CI go green, flip ruff/mypy to blocking, then tag
+    `v0.1.0` to publish. Optional docs site.
 - **P6 — MCP client support.** ✅ `MCPServer` connects to an MCP server
   (stdio / HTTP / SSE, lazy `mcp` import behind `agentix[mcp]`), discovers its
   tools as agentix `Tool`s (`inputSchema` → `parameters`), and routes calls over

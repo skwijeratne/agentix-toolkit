@@ -20,12 +20,14 @@ from __future__ import annotations
 
 import asyncio
 from collections.abc import Awaitable, Sequence
-from typing import Any, TypeVar
+from contextlib import AbstractAsyncContextManager
+from types import TracebackType
+from typing import TypeVar
 
 _T = TypeVar("_T")
 
 
-class Limiter:
+class Limiter(AbstractAsyncContextManager["Limiter"]):
     """An async concurrency limiter usable as an ``async with`` context.
 
     Share one instance across many agents to cap their combined in-flight
@@ -45,9 +47,13 @@ class Limiter:
         await self._sem.acquire()
         return self
 
-    async def __aexit__(self, *exc: Any) -> bool:
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: TracebackType | None,
+    ) -> None:
         self._sem.release()
-        return False
 
 
 async def bounded_gather(

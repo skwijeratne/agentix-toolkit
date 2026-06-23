@@ -35,7 +35,9 @@ outcome = await agent.run("What's the weather in Lisbon?")
   **images / PDFs / audio**, translated per adapter (clear errors for what a
   given provider can't accept).
 - **Security, opt-in** — trust boundary, permission tiers + dynamic
-  `can_use_tool` callbacks, PII/injection guards, human confirmation, audit events.
+  `can_use_tool` callbacks, PII/injection guards, human confirmation, audit events,
+  and a **sandboxed executor** that runs untrusted / model-generated code in an
+  isolated subprocess (no network by default, plus CPU/memory/fs limits).
 - **Cost & control** — token **and USD** cost tracking, step/token/USD budgets,
   cooperative `Interrupt`.
 - **Reliability** — output **validation + retry** (`outcome.parsed`), model
@@ -209,6 +211,7 @@ Each links to a runnable example in [`examples/`](./examples):
 | Prompts | versioning + rollback; typed Anthropic reasoning knobs | `20_prompts.py` |
 | Providers | OpenAI / Gemini / Bedrock / Ollama / LiteLLM, one-line swap | `21_providers.py` |
 | Multimodal | text + image / PDF / audio parts; per-adapter translation | `22_multimodal.py` |
+| Sandbox | run untrusted code in an isolated subprocess (no net, rlimits) | `23_sandbox.py` |
 
 ---
 

@@ -67,6 +67,7 @@ from .providers import (
     OpenAIModel,
 )
 from .resilience import FallbackModel, RetryModel
+from .sandbox import Command, SandboxPolicy, SubprocessExecutor
 from .serde import message_from_dict, message_to_dict, outcome_from_dict, outcome_to_dict
 from .store import FileStore, MemoryStore, Store
 from .streaming import (
@@ -112,6 +113,7 @@ __all__ = [
     "CallbackGuard",
     "Case",
     "CaseResult",
+    "Command",
     "ConfirmFn",
     "ContentPart",
     "ContextStrategy",
@@ -149,11 +151,13 @@ __all__ = [
     "RecipientTrustGuard",
     "RetryModel",
     "Role",
+    "SandboxPolicy",
     "Score",
     "Scorer",
     "SelfConsistencyModel",
     "Store",
     "StreamingModelFn",
+    "SubprocessExecutor",
     "TextPart",
     "Tier",
     "TierGuard",

@@ -33,6 +33,7 @@ uv run python examples/01_hello_agent.py
 | `20_prompts.py` | Prompt registry/versioning + typed Anthropic reasoning knobs. | — |
 | `21_providers.py` | Provider gallery: OpenAI / Gemini / Bedrock / Ollama / LiteLLM, one-line swap. | — (per-provider extra to run live) |
 | `22_multimodal.py` | Multimodal input: text + image / PDF / audio parts via `TextPart`/`ImagePart`/`DocumentPart`/`AudioPart`. | — |
+| `23_sandbox.py` | `SubprocessExecutor`: run untrusted/model-generated code in an isolated subprocess (no network, rlimits, timeout). | — (POSIX) |
 
 To run the Anthropic example:
 

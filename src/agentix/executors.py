@@ -38,8 +38,11 @@ class LocalToolExecutor:
 
     Callables may be sync or async and are invoked with the tool-call args as
     keyword arguments. Each call is bounded by ``timeout_s``. This executor does
-    NOT sandbox the network or filesystem — it's the default for trusted,
-    in-process tools; swap in an isolating executor for untrusted ones.
+    NOT sandbox the network or filesystem and cannot honour ``network_allowlist``
+    (an in-process call can open any socket) — it's the default for trusted,
+    in-process tools. For untrusted tools or model-generated code, use
+    :class:`~agentix.sandbox.SubprocessExecutor`, which runs each call in an
+    isolated subprocess and enforces the network/resource limits.
 
     Concurrency: **synchronous** tool functions are run in a worker thread
     (via :func:`asyncio.to_thread`) so a blocking tool can't stall the event

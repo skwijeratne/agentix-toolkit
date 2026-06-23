@@ -7,6 +7,16 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- Sandboxed execution (P16) — `SubprocessExecutor` (a `ToolExecutor`) runs each
+  tool as a separate OS process and actually enforces the limits the loop passes:
+  network egress is **denied when `network_allowlist` is empty** (Linux network
+  namespace via `unshare`, auto-detected; **fails closed** if it can't isolate,
+  unless `require_network_isolation=False`), plus POSIX CPU/memory/file-size/
+  process rlimits, a fresh per-call temp working directory, a scrubbed
+  environment (no parent secrets leak), an output cap, and a timeout that kills
+  the process group. Ships `SandboxPolicy` and `Command`. This closes the gap
+  where `LocalToolExecutor` ignored `network_allowlist`. See
+  `examples/23_sandbox.py`.
 - Multimodal input (P15) — `Message.content` is now `str | list[ContentPart]`,
   with `TextPart`, `ImagePart`, `DocumentPart`, and `AudioPart` (build via
   `from_path` / `from_bytes` / `from_base64` / `from_url`). `Message.text` gives

@@ -34,6 +34,7 @@ uv run python examples/01_hello_agent.py
 | `21_providers.py` | Provider gallery: OpenAI / Gemini / Bedrock / Ollama / LiteLLM, one-line swap. | — (per-provider extra to run live) |
 | `22_multimodal.py` | Multimodal input: text + image / PDF / audio parts via `TextPart`/`ImagePart`/`DocumentPart`/`AudioPart`. | — |
 | `23_sandbox.py` | `SubprocessExecutor`: run untrusted/model-generated code in an isolated subprocess (no network, rlimits, timeout). | — (POSIX) |
+| `24_suspend_resume.py` | Durable human-in-the-loop: `suspend_on_confirm` pauses for approval, persists, and `resume(decisions=…)` continues (even in a new process). | — |
 
 To run the Anthropic example:
 

@@ -141,3 +141,67 @@ def test_missing_dependency_raises_helpful_error() -> None:
 def test_role_enum_unused_import_guard() -> None:
     # Sanity: Role is importable and the adapter module loaded cleanly.
     assert Role.TOOL == "tool"
+
+
+# ── typed thinking / effort / task_budget knobs ──────────────────────────
+
+
+def _ok() -> FakeClient:
+    return FakeClient([_response([_text("ok")])])
+
+
+async def test_thinking_coercion() -> None:
+    for value, expected in [
+        (True, {"type": "adaptive"}),
+        ("adaptive", {"type": "adaptive"}),
+        ("summarized", {"type": "adaptive", "display": "summarized"}),
+        (False, {"type": "disabled"}),
+        ("disabled", {"type": "disabled"}),
+    ]:
+        fake = _ok()
+        await AnthropicModel(client=fake, thinking=value)([])  # type: ignore[arg-type]
+        assert fake.messages.calls[0]["thinking"] == expected
+
+
+async def test_thinking_raw_dict_passthrough() -> None:
+    fake = _ok()
+    raw = {"type": "adaptive", "display": "summarized"}
+    await AnthropicModel(client=fake, thinking=raw)([])
+    assert fake.messages.calls[0]["thinking"] == raw
+
+
+async def test_no_thinking_omits_the_field() -> None:
+    fake = _ok()
+    await AnthropicModel(client=fake)([])
+    assert "thinking" not in fake.messages.calls[0]
+
+
+async def test_effort_goes_into_output_config() -> None:
+    fake = _ok()
+    await AnthropicModel(client=fake, effort="low")([])
+    assert fake.messages.calls[0]["output_config"]["effort"] == "low"
+
+
+async def test_task_budget_sets_output_config_and_beta_header() -> None:
+    fake = _ok()
+    await AnthropicModel(client=fake, task_budget=50000)([])
+    call = fake.messages.calls[0]
+    assert call["output_config"]["task_budget"] == {"type": "tokens", "total": 50000}
+    assert "task-budgets-2026-03-13" in call["extra_headers"]["anthropic-beta"]
+
+
+async def test_effort_merges_with_extra_output_config() -> None:
+    fake = _ok()
+    fmt = {"format": {"type": "json_schema", "schema": {}}}
+    await AnthropicModel(client=fake, effort="high", output_config=fmt)([])
+    oc = fake.messages.calls[0]["output_config"]
+    assert oc["effort"] == "high"
+    assert oc["format"] == fmt["format"]  # both present
+
+
+def test_bad_thinking_value_raises() -> None:
+    try:
+        AnthropicModel(client=_ok(), thinking="loud")  # type: ignore[arg-type]
+        raise AssertionError("expected ValueError")
+    except ValueError:
+        pass

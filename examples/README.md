@@ -30,6 +30,7 @@ uv run python examples/01_hello_agent.py
 | `17_eval.py` | Eval harness: score an agent over golden cases, gate CI on pass rate. | — |
 | `18_verification.py` | Self-consistency (`SelfConsistencyModel`) + LLM-as-judge (`JudgeGuard`). | — |
 | `19_tracing.py` | OpenTelemetry tracing: model/tool/run spans. | `agentix[otel]` + `opentelemetry-sdk` |
+| `20_prompts.py` | Prompt registry/versioning + typed Anthropic reasoning knobs. | — |
 
 To run the Anthropic example:
 

@@ -18,6 +18,7 @@ import asyncio
 from collections.abc import Sequence
 from typing import Any
 
+from ..content import AudioPart, ContentPart, DocumentPart, ImagePart, TextPart
 from ..model import ToolSchema
 from ..pricing import cost_usd
 from ..types import Message, ModelResponse, Role, ToolCall
@@ -118,9 +119,9 @@ def _to_messages(messages: Sequence[Message]) -> tuple[str, list[dict[str, Any]]
     conversation: list[dict[str, Any]] = []
     for msg in messages:
         if msg.role is Role.SYSTEM:
-            system_parts.append(msg.content)
+            system_parts.append(msg.text)
         elif msg.role is Role.USER:
-            conversation.append({"role": "user", "content": [{"text": msg.content}]})
+            conversation.append({"role": "user", "content": _user_content(msg.content)})
         elif msg.role is Role.ASSISTANT:
             content: list[dict[str, Any]] = []
             if msg.content:
@@ -152,6 +153,44 @@ def _to_messages(messages: Sequence[Message]) -> tuple[str, list[dict[str, Any]]
                 }
             )
     return "\n\n".join(system_parts), conversation
+
+
+def _fmt(media_type: str) -> str:
+    """`image/png` -> `png`, `application/pdf` -> `pdf` (Converse `format`)."""
+    return media_type.rsplit("/", 1)[-1]
+
+
+def _user_content(content: str | list[ContentPart]) -> list[dict[str, Any]]:
+    if isinstance(content, str):
+        return [{"text": content}]
+    blocks: list[dict[str, Any]] = []
+    for part in content:
+        if isinstance(part, TextPart):
+            blocks.append({"text": part.text})
+        elif isinstance(part, ImagePart | DocumentPart):
+            if part.url is not None:
+                raise ValueError(
+                    "Bedrock Converse requires inline bytes; URL sources are not "
+                    "supported (provide inline data or an S3 location)."
+                )
+            source = {"bytes": part.to_bytes()}
+            if isinstance(part, ImagePart):
+                blocks.append({"image": {"format": _fmt(part.media_type), "source": source}})
+            else:
+                blocks.append(
+                    {
+                        "document": {
+                            "format": _fmt(part.media_type),
+                            "name": part.filename or "document",
+                            "source": source,
+                        }
+                    }
+                )
+        elif isinstance(part, AudioPart):
+            raise ValueError("Bedrock Converse does not accept audio content blocks")
+        else:  # pragma: no cover - exhaustive
+            raise TypeError(f"unsupported content part: {part!r}")
+    return blocks
 
 
 def _to_tool_specs(tools: Sequence[ToolSchema]) -> list[dict[str, Any]]:

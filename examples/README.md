@@ -32,6 +32,7 @@ uv run python examples/01_hello_agent.py
 | `19_tracing.py` | OpenTelemetry tracing: model/tool/run spans. | `agentix[otel]` + `opentelemetry-sdk` |
 | `20_prompts.py` | Prompt registry/versioning + typed Anthropic reasoning knobs. | — |
 | `21_providers.py` | Provider gallery: OpenAI / Gemini / Bedrock / Ollama / LiteLLM, one-line swap. | — (per-provider extra to run live) |
+| `22_multimodal.py` | Multimodal input: text + image / PDF / audio parts via `TextPart`/`ImagePart`/`DocumentPart`/`AudioPart`. | — |
 
 To run the Anthropic example:
 

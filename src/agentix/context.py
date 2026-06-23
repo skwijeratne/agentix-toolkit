@@ -96,6 +96,7 @@ class TruncateToolOutputs(ContextStrategy):
         for msg in messages:
             if (
                 msg.role is Role.TOOL
+                and isinstance(msg.content, str)
                 and len(msg.content) > self.max_chars
                 and not msg.content.endswith(self.marker)
             ):

@@ -20,6 +20,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from typing import Any
 
+from ..content import AudioPart, ContentPart, DocumentPart, ImagePart, TextPart
 from ..model import ToolSchema
 from ..types import Message, ModelResponse, Role, ToolCall
 from . import _openai_compat as oc
@@ -80,7 +81,7 @@ def _to_messages(messages: Sequence[Message]) -> list[dict[str, Any]]:
         if msg.role is Role.SYSTEM:
             out.append({"role": "system", "content": msg.content})
         elif msg.role is Role.USER:
-            out.append({"role": "user", "content": msg.content})
+            out.append(_user_message(msg.content))
         elif msg.role is Role.ASSISTANT:
             entry: dict[str, Any] = {"role": "assistant", "content": msg.content or ""}
             calls: list[ToolCall] = msg.meta.get("tool_calls", [])
@@ -92,6 +93,29 @@ def _to_messages(messages: Sequence[Message]) -> list[dict[str, Any]]:
         elif msg.role is Role.TOOL:
             out.append({"role": "tool", "content": msg.content, "name": msg.name})
     return out
+
+
+def _user_message(content: str | list[ContentPart]) -> dict[str, Any]:
+    """Ollama attaches images at the message level (base64), text in `content`."""
+    if isinstance(content, str):
+        return {"role": "user", "content": content}
+    texts: list[str] = []
+    images: list[str] = []
+    for part in content:
+        if isinstance(part, TextPart):
+            texts.append(part.text)
+        elif isinstance(part, ImagePart):
+            if part.data is None:
+                raise ValueError("Ollama images must be inline base64 (local), not a URL")
+            images.append(part.data)
+        elif isinstance(part, DocumentPart | AudioPart):
+            raise ValueError("Ollama accepts only image attachments (inline base64)")
+        else:  # pragma: no cover - exhaustive
+            raise TypeError(f"unsupported content part: {part!r}")
+    msg: dict[str, Any] = {"role": "user", "content": "".join(texts)}
+    if images:
+        msg["images"] = images
+    return msg
 
 
 def _read(obj: Any, key: str, default: Any = None) -> Any:

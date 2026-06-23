@@ -19,9 +19,47 @@ import json
 from collections.abc import Sequence
 from typing import Any
 
+from ..content import AudioPart, ContentPart, DocumentPart, ImagePart, TextPart
 from ..model import ToolSchema
 from ..pricing import cost_usd
 from ..types import Message, ModelResponse, Role, ToolCall
+
+
+def _audio_format(media_type: str) -> str:
+    fmt = media_type.rsplit("/", 1)[-1]
+    return "mp3" if fmt in ("mpeg", "mp3") else fmt
+
+
+def _content(content: str | list[ContentPart]) -> Any:
+    """User content -> an OpenAI content string or list of typed blocks."""
+    if isinstance(content, str):
+        return content
+    blocks: list[dict[str, Any]] = []
+    for part in content:
+        if isinstance(part, TextPart):
+            blocks.append({"type": "text", "text": part.text})
+        elif isinstance(part, ImagePart):
+            url = part.url or part.data_uri()
+            blocks.append({"type": "image_url", "image_url": {"url": url}})
+        elif isinstance(part, AudioPart):
+            if part.data is None:
+                raise ValueError("OpenAI audio input requires inline data, not a URL")
+            blocks.append(
+                {
+                    "type": "input_audio",
+                    "input_audio": {"data": part.data, "format": _audio_format(part.media_type)},
+                }
+            )
+        elif isinstance(part, DocumentPart):
+            blocks.append(
+                {
+                    "type": "file",
+                    "file": {"filename": part.filename or "file", "file_data": part.data_uri()},
+                }
+            )
+        else:  # pragma: no cover - exhaustive
+            raise TypeError(f"unsupported content part: {part!r}")
+    return blocks
 
 
 def to_messages(messages: Sequence[Message]) -> list[dict[str, Any]]:
@@ -31,7 +69,7 @@ def to_messages(messages: Sequence[Message]) -> list[dict[str, Any]]:
         if msg.role is Role.SYSTEM:
             out.append({"role": "system", "content": msg.content})
         elif msg.role is Role.USER:
-            out.append({"role": "user", "content": msg.content})
+            out.append({"role": "user", "content": _content(msg.content)})
         elif msg.role is Role.ASSISTANT:
             entry: dict[str, Any] = {"role": "assistant", "content": msg.content or None}
             calls: list[ToolCall] = msg.meta.get("tool_calls", [])

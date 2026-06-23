@@ -18,6 +18,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from typing import Any
 
+from ..content import AudioPart, ContentPart, DocumentPart, ImagePart, TextPart
 from ..model import ToolSchema
 from ..pricing import cost_usd
 from ..types import Message, ModelResponse, Role, ToolCall
@@ -114,9 +115,9 @@ def _to_contents(messages: Sequence[Message]) -> tuple[str, list[dict[str, Any]]
     contents: list[dict[str, Any]] = []
     for msg in messages:
         if msg.role is Role.SYSTEM:
-            system_parts.append(msg.content)
+            system_parts.append(msg.text)
         elif msg.role is Role.USER:
-            contents.append({"role": "user", "parts": [{"text": msg.content}]})
+            contents.append({"role": "user", "parts": _to_parts(msg.content)})
         elif msg.role is Role.ASSISTANT:
             parts: list[dict[str, Any]] = []
             if msg.content:
@@ -141,6 +142,29 @@ def _to_contents(messages: Sequence[Message]) -> tuple[str, list[dict[str, Any]]
                 }
             )
     return "\n\n".join(system_parts), contents
+
+
+def _to_parts(content: str | list[ContentPart]) -> list[dict[str, Any]]:
+    """User content -> Gemini parts. Media uses inline_data (base64) or file_data
+    (a URI — works for uploaded/`gs://` files; arbitrary http URLs may not)."""
+    if isinstance(content, str):
+        return [{"text": content}]
+    parts: list[dict[str, Any]] = []
+    for part in content:
+        if isinstance(part, TextPart):
+            parts.append({"text": part.text})
+        elif isinstance(part, ImagePart | DocumentPart | AudioPart):
+            if part.url is not None:
+                parts.append(
+                    {"file_data": {"file_uri": part.url, "mime_type": part.media_type}}
+                )
+            else:
+                parts.append(
+                    {"inline_data": {"mime_type": part.media_type, "data": part.data}}
+                )
+        else:  # pragma: no cover - exhaustive
+            raise TypeError(f"unsupported content part: {part!r}")
+    return parts
 
 
 def _to_declarations(tools: Sequence[ToolSchema]) -> list[dict[str, Any]]:

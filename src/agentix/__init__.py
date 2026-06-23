@@ -10,6 +10,13 @@ from .agent import Agent
 from .concurrency import Limiter, bounded_gather
 from .confirm import ConfirmFn, always_approve, always_deny, console_confirm
 from .consistency import SelfConsistencyModel
+from .content import (
+    AudioPart,
+    ContentPart,
+    DocumentPart,
+    ImagePart,
+    TextPart,
+)
 from .context import ContextStrategy, TrimRounds, TruncateToolOutputs
 from .control import Interrupt
 from .errors import AgentError, BudgetExceeded, GuardError, ToolError
@@ -99,14 +106,17 @@ __all__ = [
     "AgentStreamEvent",
     "AnswerDelta",
     "AnthropicModel",
+    "AudioPart",
     "BedrockModel",
     "BudgetExceeded",
     "CallbackGuard",
     "Case",
     "CaseResult",
     "ConfirmFn",
+    "ContentPart",
     "ContextStrategy",
     "Decision",
+    "DocumentPart",
     "Done",
     "EvalReport",
     "FallbackModel",
@@ -116,6 +126,7 @@ __all__ = [
     "GuardContext",
     "GuardError",
     "GuardPipeline",
+    "ImagePart",
     "InjectionGuard",
     "Interrupt",
     "JudgeGuard",
@@ -143,6 +154,7 @@ __all__ = [
     "SelfConsistencyModel",
     "Store",
     "StreamingModelFn",
+    "TextPart",
     "Tier",
     "TierGuard",
     "Tool",

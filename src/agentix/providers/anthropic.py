@@ -22,6 +22,7 @@ from __future__ import annotations
 from collections.abc import AsyncIterator, Sequence
 from typing import Any, Literal
 
+from ..content import AudioPart, ContentPart, DocumentPart, ImagePart, TextPart
 from ..model import ToolSchema
 from ..pricing import cost_usd
 from ..streaming import ModelStreamEvent, ResponseComplete, TextDelta
@@ -197,9 +198,11 @@ class AnthropicModel:
 
         for msg in messages:
             if msg.role is Role.SYSTEM:
-                system_parts.append(msg.content)
+                system_parts.append(msg.text)
             elif msg.role is Role.USER:
-                conversation.append({"role": "user", "content": msg.content})
+                conversation.append(
+                    {"role": "user", "content": _user_content(msg.content)}
+                )
             elif msg.role is Role.ASSISTANT:
                 conversation.append(
                     {"role": "assistant", "content": _assistant_content(msg)}
@@ -271,6 +274,31 @@ class AnthropicModel:
             output_tokens=output_tokens,
             cost_usd=cost_usd(self.model, input_tokens, output_tokens),
         )
+
+
+def _source(part: ImagePart | DocumentPart) -> dict[str, Any]:
+    if part.url is not None:
+        return {"type": "url", "url": part.url}
+    return {"type": "base64", "media_type": part.media_type, "data": part.data}
+
+
+def _user_content(content: str | list[ContentPart]) -> Any:
+    """User message content -> a string or a list of Anthropic content blocks."""
+    if isinstance(content, str):
+        return content
+    blocks: list[dict[str, Any]] = []
+    for part in content:
+        if isinstance(part, TextPart):
+            blocks.append({"type": "text", "text": part.text})
+        elif isinstance(part, ImagePart):
+            blocks.append({"type": "image", "source": _source(part)})
+        elif isinstance(part, DocumentPart):
+            blocks.append({"type": "document", "source": _source(part)})
+        elif isinstance(part, AudioPart):
+            raise ValueError("Anthropic models do not accept audio input")
+        else:  # pragma: no cover - exhaustive
+            raise TypeError(f"unsupported content part: {part!r}")
+    return blocks
 
 
 def _assistant_content(msg: Message) -> Any:

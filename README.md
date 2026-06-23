@@ -44,6 +44,9 @@ outcome = await agent.run("What's the weather in Lisbon?")
   persists, and returns `status="suspended"`; `resume(run_id, decisions=…)`
   approves/denies on a later request (web/serverless-friendly), not just an
   inline blocking prompt.
+- **Cross-session memory** — a pluggable `Memory` interface: recalled records are
+  injected as context before each run (your semantic/keyword backend; a
+  dependency-free default is included), with `remember_exchange` to persist turns.
 - **Reliability** — output **validation + retry** (`outcome.parsed`), model
   **fallback/retry**, self-consistency, and LLM-as-judge.
 - **Scale & ops** — streaming, checkpoint/resume, **token-aware** context
@@ -218,6 +221,7 @@ Each links to a runnable example in [`examples/`](./examples):
 | Multimodal | text + image / PDF / audio parts; per-adapter translation | `22_multimodal.py` |
 | Sandbox | run untrusted code in an isolated subprocess (no net, rlimits) | `23_sandbox.py` |
 | Suspend/resume | pause for human approval, persist, resume on a later request | `24_suspend_resume.py` |
+| Memory | cross-session recall via a pluggable `Memory` interface | `26_memory.py` |
 
 ---
 

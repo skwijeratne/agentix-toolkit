@@ -7,6 +7,13 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- Pluggable memory (P20) — a `Memory` protocol for cross-session recall
+  (`recall(query)` / `write(content)`); `MemoryRecord`; and a dependency-free
+  `InMemoryMemory` default with keyword-overlap recall (+ `dump`/`load` for
+  persistence). `Agent(memory=…, memory_limit=…)` recalls before each run/stream
+  and injects the records as trusted system context; `remember_exchange=True`
+  persists each completed exchange. agentix owns the interface — bring your own
+  vector DB / search index as the backend. See `examples/26_memory.py`.
 - Token-accurate context (P19) — a `TokenCounter` abstraction
   (`Callable[[str], int]`) with a dependency-free `HeuristicTokenCounter` /
   `approx_token_counter` default, transcript counting (`count_tokens`,

@@ -36,6 +36,7 @@ uv run python examples/01_hello_agent.py
 | `23_sandbox.py` | `SubprocessExecutor`: run untrusted/model-generated code in an isolated subprocess (no network, rlimits, timeout). | — (POSIX) |
 | `24_suspend_resume.py` | Durable human-in-the-loop: `suspend_on_confirm` pauses for approval, persists, and `resume(decisions=…)` continues (even in a new process). | — |
 | `25_token_context.py` | Token-accurate context: `count_tokens` + `FitContextWindow` trims the transcript to a real token budget (pluggable counter). | — |
+| `26_memory.py` | Cross-session memory: a `Memory` (`InMemoryMemory`) recalled into context across two sessions, persisted via a `FileStore`. | — |
 
 To run the Anthropic example:
 

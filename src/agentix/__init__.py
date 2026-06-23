@@ -63,6 +63,7 @@ from .guards import (
     wrap_as_untrusted_data,
 )
 from .mcp import MCPServer
+from .memory import InMemoryMemory, Memory, MemoryRecord
 from .model import ModelFn, ToolSchema
 from .policy import AgentPolicy, Tier
 from .pricing import cost_usd, register_price
@@ -142,6 +143,7 @@ __all__ = [
     "GuardPipeline",
     "HeuristicTokenCounter",
     "ImagePart",
+    "InMemoryMemory",
     "InjectionGuard",
     "Interrupt",
     "JudgeGuard",
@@ -149,8 +151,10 @@ __all__ = [
     "LiteLLMModel",
     "LocalToolExecutor",
     "MCPServer",
-    "Message",
+    "Memory",
+    "MemoryRecord",
     "MemoryStore",
+    "Message",
     "MockModel",
     "ModelFn",
     "ModelResponse",

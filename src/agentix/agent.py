@@ -24,6 +24,7 @@ from .errors import AgentError
 from .events import AgentEvents
 from .executors import ToolExecutor
 from .guards import Guard, GuardContext, GuardPipeline
+from .memory import Memory, MemoryRecord
 from .model import ModelFn, ToolSchema
 from .policy import AgentPolicy
 from .serde import SCHEMA_VERSION, transcript_from_dicts, transcript_to_dicts
@@ -79,11 +80,20 @@ class Agent:
         context_strategy: ContextStrategy | None = None,
         output_validator: OutputValidator | None = None,
         max_output_retries: int = 1,
+        memory: Memory | None = None,
+        memory_limit: int = 5,
+        remember_exchange: bool = False,
     ) -> None:
         self.model = model
         self.system_prompt = system_prompt
         self.policy = policy or AgentPolicy()
         self.store = store
+        # Optional cross-session memory: recalled before each run/stream and
+        # injected as system context; set remember_exchange to also persist each
+        # completed exchange. Recall happens on run()/stream(), not resume().
+        self.memory = memory
+        self.memory_limit = memory_limit
+        self.remember_exchange = remember_exchange
         # Optional shared limiter to bound concurrent model calls across a fleet.
         self.model_limiter = model_limiter
         # Optional compaction applied before each model call (opt-in).
@@ -129,8 +139,10 @@ class Agent:
         """Run the loop to completion. If ``run_id`` is given and a ``store`` is
         configured, the run is checkpointed after every step (resumable). Pass an
         ``Interrupt`` to stop the run at its next safe boundary."""
-        messages = self._seed_messages(user_request)
-        return await self._loop(messages, 0, 0, 0.0, run_id, self.store, interrupt)
+        messages = await self._seed_messages(user_request)
+        outcome = await self._loop(messages, 0, 0, 0.0, run_id, self.store, interrupt)
+        await self._remember(user_request, outcome)
+        return outcome
 
     async def resume(
         self,
@@ -218,7 +230,7 @@ class Agent:
         is passed through the guards. Use :meth:`run` if you need the user-facing
         text itself redacted before it is emitted.
         """
-        messages = self._seed_messages(user_request)
+        messages = await self._seed_messages(user_request)
         steps = 0
         tokens_used = 0
         cost_usd = 0.0
@@ -433,13 +445,39 @@ class Agent:
             "Correct the issue and respond again with only the valid output."
         )
 
-    def _seed_messages(self, user_request: str | list[ContentPart]) -> list[Message]:
+    async def _seed_messages(
+        self, user_request: str | list[ContentPart]
+    ) -> list[Message]:
         # Trust boundary: only the system prompt and the genuine user request
         # are trusted as instructions. Tool output never is.
-        return [
-            Message(Role.SYSTEM, self.system_prompt, trusted=True),
-            Message(Role.USER, user_request, trusted=True),
-        ]
+        messages = [Message(Role.SYSTEM, self.system_prompt, trusted=True)]
+
+        # Cross-session memory: recall records relevant to this request and
+        # inject them as (trusted) system context before the user's turn.
+        if self.memory is not None:
+            query = Message(Role.USER, user_request).text
+            recalled = await self.memory.recall(query, limit=self.memory_limit)
+            if recalled:
+                messages.append(
+                    Message(Role.SYSTEM, _format_memories(recalled), trusted=True)
+                )
+
+        messages.append(Message(Role.USER, user_request, trusted=True))
+        return messages
+
+    async def _remember(
+        self, user_request: str | list[ContentPart], outcome: AgentOutcome
+    ) -> None:
+        """Persist a completed exchange to memory (opt-in)."""
+        if self.memory is None or not self.remember_exchange:
+            return
+        if outcome.status != "completed" or outcome.answer is None:
+            return
+        request = Message(Role.USER, user_request).text
+        await self.memory.write(
+            f"User asked: {request}\nAssistant answered: {outcome.answer}",
+            metadata={"kind": "exchange"},
+        )
 
     @staticmethod
     def _assistant_tool_turn(response: ModelResponse) -> Message:
@@ -612,3 +650,9 @@ class Agent:
         )
         await self.events.emit("on_final", outcome)
         return outcome
+
+
+def _format_memories(records: list[MemoryRecord]) -> str:
+    """Render recalled memory records as a system-context block."""
+    lines = "\n".join(f"- {r.content}" for r in records)
+    return f"Relevant information recalled from memory:\n{lines}"

@@ -15,6 +15,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `json_output`, `pydantic_output`, `regex_output`.
 - Resilient model wrappers: `RetryModel` (backoff) and `FallbackModel`
   (try-next-on-error), composable and drop-in.
+- Eval harness (`agentix.evals`): `evaluate(...)` runs an agent over `Case`s and
+  returns an `EvalReport` with `pass_rate` / `format_success_rate` /
+  `assert_pass_rate()` (gate CI on regressions). Scorers: `exact_match`,
+  `contains`, `regex_match`, `predicate`, `llm_judge`.
 
 ## [0.1.0] - 2026-06-22
 

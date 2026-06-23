@@ -27,6 +27,7 @@ uv run python examples/01_hello_agent.py
 | `14_cost_and_interrupt.py` | USD cost tracking, `max_budget_usd`, and `Interrupt`. | — |
 | `15_permissions.py` | Dynamic permissions: `CallbackGuard` (can_use_tool) + `ToolAllowlistGuard`. | — |
 | `16_reliability.py` | Output validation + retry; resilient models (`RetryModel`/`FallbackModel`). | — |
+| `17_eval.py` | Eval harness: score an agent over golden cases, gate CI on pass rate. | — |
 
 To run the Anthropic example:
 

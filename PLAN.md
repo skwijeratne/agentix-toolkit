@@ -117,9 +117,12 @@ agentix/
 - **P11 — Reliability (core).** ◑ Output validation + retry
   (`Agent(output_validator=, max_output_retries=)` → `outcome.parsed`;
   `json_output`/`pydantic_output`/`regex_output`) and resilient model wrappers
-  (`RetryModel`, `FallbackModel`). Tests + example 16. Remaining P11
-  (structured-output passthrough, self-consistency, judge) and P12 (eval) /
-  P13 (tracing) tracked in `PLAN.gaps.md`.
+  (`RetryModel`, `FallbackModel`). Tests + example 16.
+- **P12 — Eval harness.** ✅ `agentix.evals`: `evaluate(dataset, agent, scorer=)`
+  → `EvalReport` (`pass_rate`, `format_success_rate`, `assert_pass_rate()` to
+  gate CI). Scorers: `exact_match`/`contains`/`regex_match`/`predicate`/
+  `llm_judge`. Tests + example 17. Remaining P11 (structured-output passthrough,
+  self-consistency, standalone judge) and P13 (tracing) in `PLAN.gaps.md`.
 
 > ⚠️ Streaming caveat: `on_answer` egress guards (PII redaction) can't un-send
 > already-streamed deltas — deltas are raw; `Done.outcome.answer` is redacted.

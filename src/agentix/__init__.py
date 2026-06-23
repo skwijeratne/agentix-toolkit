@@ -12,6 +12,19 @@ from .confirm import ConfirmFn, always_approve, always_deny, console_confirm
 from .context import ContextStrategy, TrimRounds, TruncateToolOutputs
 from .control import Interrupt
 from .errors import AgentError, BudgetExceeded, GuardError, ToolError
+from .evals import (
+    Case,
+    CaseResult,
+    EvalReport,
+    Score,
+    Scorer,
+    contains,
+    evaluate,
+    exact_match,
+    llm_judge,
+    predicate,
+    regex_match,
+)
 from .events import AgentEvents
 from .executors import LocalToolExecutor, ToolExecutor
 from .guards import (
@@ -71,10 +84,13 @@ __all__ = [
     "AnthropicModel",
     "BudgetExceeded",
     "CallbackGuard",
+    "Case",
+    "CaseResult",
     "ConfirmFn",
     "ContextStrategy",
     "Decision",
     "Done",
+    "EvalReport",
     "FallbackModel",
     "FileStore",
     "Guard",
@@ -97,6 +113,8 @@ __all__ = [
     "RecipientTrustGuard",
     "RetryModel",
     "Role",
+    "Score",
+    "Scorer",
     "Store",
     "StreamingModelFn",
     "Tier",
@@ -119,13 +137,19 @@ __all__ = [
     "always_deny",
     "bounded_gather",
     "console_confirm",
+    "contains",
     "cost_usd",
+    "evaluate",
+    "exact_match",
     "json_output",
+    "llm_judge",
     "message_from_dict",
     "message_to_dict",
     "outcome_from_dict",
     "outcome_to_dict",
+    "predicate",
     "pydantic_output",
+    "regex_match",
     "regex_output",
     "register_price",
     "secure_defaults",

@@ -27,11 +27,17 @@ outcome = await agent.run("What's the weather in Lisbon?")
 
 - **Async-first** core loop (`run` / `stream` / `resume`) with a sync wrapper.
 - **Provider-agnostic** — bring any model; a real **Anthropic** adapter is included.
-- **Tools from type hints** — one `@tool` decorator generates the JSON schema.
-- **Security as a first-class, opt-in subsystem** — trust boundary, permission
-  tiers, confirmation, PII/injection guards, audit events.
-- **Scales** — streaming, checkpoint/resume, MCP tools, context trimming, and
-  fleet backpressure.
+- **Tools from type hints** — one `@tool` decorator generates the JSON schema;
+  **MCP** servers and **subagents** plug in as tools too.
+- **Security, opt-in** — trust boundary, permission tiers + dynamic
+  `can_use_tool` callbacks, PII/injection guards, human confirmation, audit events.
+- **Cost & control** — token **and USD** cost tracking, step/token/USD budgets,
+  cooperative `Interrupt`.
+- **Reliability** — output **validation + retry** (`outcome.parsed`), model
+  **fallback/retry**, self-consistency, and LLM-as-judge.
+- **Scale & ops** — streaming, checkpoint/resume, context trimming, fleet
+  backpressure, an **eval harness** (gate CI on quality), and **OpenTelemetry**
+  tracing.
 
 > Status: **alpha**, under active development. APIs may change before `1.0`.
 
@@ -46,9 +52,9 @@ The distribution is **`agentix-toolkit`**; you import it as **`agentix`**.
 With [uv](https://docs.astral.sh/uv/) (recommended):
 
 ```bash
-uv add agentix-toolkit                      # core
-uv add "agentix-toolkit[anthropic]"         # + Anthropic adapter
-uv add "agentix-toolkit[anthropic,mcp]"     # + MCP client support
+uv add agentix-toolkit                       # core (no required deps)
+uv add "agentix-toolkit[anthropic]"          # + Anthropic adapter
+uv add "agentix-toolkit[anthropic,mcp,otel]" # + MCP client + OpenTelemetry tracing
 ```
 
 Or with pip:
@@ -56,6 +62,9 @@ Or with pip:
 ```bash
 pip install "agentix-toolkit[anthropic]"
 ```
+
+Extras are opt-in: `anthropic` (the model adapter), `mcp` (MCP client),
+`otel` (OpenTelemetry tracing). The core has **no required dependencies**.
 
 ### 2. Run an agent with no API key
 
@@ -143,6 +152,30 @@ async for event in agent.stream("Tell me about Lisbon."):
         print("\n", event.outcome.status)
 ```
 
+### 6. Make it production-safe (validate output, fall back, cap cost)
+
+Stop malformed output from crashing downstream code: validate the final answer
+and re-prompt on failure. Add a fallback model and a USD budget for resilience.
+
+```python
+from agentix import Agent, AgentPolicy, FallbackModel, json_output
+
+agent = Agent(
+    model=FallbackModel([primary_model, backup_model]),  # survive a provider blip
+    system_prompt="Reply with a JSON object.",
+    tools=[...],
+    output_validator=json_output,        # or pydantic_output(MyModel)
+    max_output_retries=2,                # re-prompt the model on bad output
+    policy=AgentPolicy(max_budget_usd=0.50),  # abort if it gets expensive
+)
+outcome = await agent.run("...")
+outcome.parsed     # a validated object — safe to use; outcome.cost_usd is tracked
+```
+
+Then **gate quality in CI** with the eval harness — `evaluate(...)` runs your
+agent over golden cases and `assert_pass_rate(...)` fails the build on a
+regression (see `examples/17_eval.py`).
+
 ---
 
 ## Feature tour
@@ -158,6 +191,13 @@ Each links to a runnable example in [`examples/`](./examples):
 | Concurrency | `Limiter` + `bounded_gather` for fleets | `10_concurrency.py` |
 | MCP | use any MCP server's tools | `11_mcp.py` |
 | Context | bound the transcript (`TrimRounds`, …) | `12_context.py` |
+| Subagents | delegate a subtask to a child agent | `13_subagents.py` |
+| Cost & interrupt | USD budgets + stop a run mid-flight | `14_cost_and_interrupt.py` |
+| Permissions | dynamic `can_use_tool` + tool allowlist | `15_permissions.py` |
+| Reliability | output validation + retry, fallback/retry models | `16_reliability.py` |
+| Eval | score golden cases, gate CI on pass rate | `17_eval.py` |
+| Verify | self-consistency + LLM-as-judge | `18_verification.py` |
+| Tracing | OpenTelemetry model/tool/run spans | `19_tracing.py` |
 
 ---
 

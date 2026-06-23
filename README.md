@@ -176,6 +176,12 @@ Run an example: `uv run python examples/01_hello_agent.py`.
 See [`RELEASING.md`](./RELEASING.md) for the publish process and
 [`PLAN.md`](./PLAN.md) for the roadmap.
 
+## Contributing
+
+Contributions are welcome! See [`CONTRIBUTING.md`](./CONTRIBUTING.md) for setup
+and the PR checklist, [`CODE_OF_CONDUCT.md`](./CODE_OF_CONDUCT.md), and
+[`SECURITY.md`](./SECURITY.md) for reporting vulnerabilities privately.
+
 ## License
 
 MIT — see [`LICENSE`](./LICENSE).

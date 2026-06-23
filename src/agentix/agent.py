@@ -39,6 +39,7 @@ from .streaming import (
 )
 from .tools import Tool, ToolRegistry
 from .types import AgentOutcome, Message, ModelResponse, Role, ToolCall
+from .validation import OutputValidator
 
 
 class Agent:
@@ -74,6 +75,8 @@ class Agent:
         store: Store | None = None,
         model_limiter: Limiter | None = None,
         context_strategy: ContextStrategy | None = None,
+        output_validator: OutputValidator | None = None,
+        max_output_retries: int = 1,
     ) -> None:
         self.model = model
         self.system_prompt = system_prompt
@@ -83,6 +86,9 @@ class Agent:
         self.model_limiter = model_limiter
         # Optional compaction applied before each model call (opt-in).
         self.context_strategy = context_strategy
+        # Optional final-answer validation; on failure, re-prompt up to N times.
+        self.output_validator = output_validator
+        self.max_output_retries = max_output_retries
 
         # Guards are opt-in: no guards -> a clean loop. Pass
         # `guards=secure_defaults()` (or your own list) to turn on protections.
@@ -212,9 +218,19 @@ class Agent:
             if response.is_final:
                 answer = await self.guards.on_answer(response.text, GuardContext(self.policy))
                 messages.append(Message(Role.ASSISTANT, answer, trusted=True))
+                # Streaming validates best-effort: the answer was already streamed,
+                # so we can't retry. `parsed` is None if validation fails. Use
+                # run() if you need validation-driven retries.
+                parsed: Any = None
+                if self.output_validator is not None:
+                    try:
+                        parsed = await self._validate(answer)
+                    except Exception:  # noqa: BLE001 - best-effort in streaming
+                        parsed = None
                 outcome = AgentOutcome(
                     status="completed",
                     answer=answer,
+                    parsed=parsed,
                     steps=steps,
                     tokens_used=tokens_used,
                     cost_usd=cost_usd,
@@ -247,6 +263,7 @@ class Agent:
         store: Store | None,
         interrupt: Interrupt | None = None,
     ) -> AgentOutcome:
+        output_retries = self.max_output_retries
         while steps < self.policy.max_steps:
             # Cooperative interrupt: checked at a safe boundary (between steps).
             if interrupt is not None and interrupt.triggered:
@@ -270,9 +287,34 @@ class Agent:
                     response.text, GuardContext(self.policy)
                 )
                 messages.append(Message(Role.ASSISTANT, answer, trusted=True))
+
+                parsed: Any = None
+                if self.output_validator is not None:
+                    try:
+                        parsed = await self._validate(answer)
+                    except Exception as exc:  # noqa: BLE001 - validator failure -> retry/abort
+                        if output_retries > 0:
+                            output_retries -= 1
+                            messages.append(
+                                Message(Role.USER, self._retry_prompt(exc), trusted=True)
+                            )
+                            continue  # re-prompt the model with the validation error
+                        outcome = AgentOutcome(
+                            status="aborted",
+                            reason="output_validation_failed",
+                            answer=answer,
+                            steps=steps,
+                            tokens_used=tokens_used,
+                            cost_usd=cost_usd,
+                            transcript=messages,
+                        )
+                        await self.events.emit("on_final", outcome)
+                        return outcome
+
                 outcome = AgentOutcome(
                     status="completed",
                     answer=answer,
+                    parsed=parsed,
                     steps=steps,
                     tokens_used=tokens_used,
                     cost_usd=cost_usd,
@@ -327,6 +369,22 @@ class Agent:
         if compacted is not messages:  # strategy signals a change by new identity
             await self.events.emit("on_compact", before, len(compacted))
         return compacted
+
+    async def _validate(self, answer: str) -> Any:
+        """Run the output validator; returns the parsed value or raises."""
+        assert self.output_validator is not None
+        result = self.output_validator(answer)
+        if inspect.isawaitable(result):
+            result = await result
+        return result
+
+    @staticmethod
+    def _retry_prompt(exc: BaseException) -> str:
+        return (
+            "Your previous response did not pass validation:\n"
+            f"{exc}\n"
+            "Correct the issue and respond again with only the valid output."
+        )
 
     def _seed_messages(self, user_request: str) -> list[Message]:
         # Trust boundary: only the system prompt and the genuine user request

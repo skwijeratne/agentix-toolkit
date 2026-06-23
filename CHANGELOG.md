@@ -10,6 +10,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Dynamic permissions: `CallbackGuard` (a `can_use_tool`-style per-call callback
   returning allow/deny/confirm) and `ToolAllowlistGuard` (scope a run to a
   subset of tools).
+- Output validation + retry: `Agent(output_validator=, max_output_retries=)`
+  re-prompts on a failed validation and exposes `AgentOutcome.parsed`. Ships
+  `json_output`, `pydantic_output`, `regex_output`.
+- Resilient model wrappers: `RetryModel` (backoff) and `FallbackModel`
+  (try-next-on-error), composable and drop-in.
 
 ## [0.1.0] - 2026-06-22
 

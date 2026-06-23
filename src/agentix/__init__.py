@@ -35,6 +35,7 @@ from .model import ModelFn, ToolSchema
 from .policy import AgentPolicy, Tier
 from .pricing import cost_usd, register_price
 from .providers import AnthropicModel, MockModel
+from .resilience import FallbackModel, RetryModel
 from .serde import message_from_dict, message_to_dict, outcome_from_dict, outcome_to_dict
 from .store import FileStore, MemoryStore, Store
 from .streaming import (
@@ -55,6 +56,7 @@ from .types import (
     ToolCall,
     ToolResult,
 )
+from .validation import OutputValidator, json_output, pydantic_output, regex_output
 
 __version__ = "0.1.0"
 
@@ -73,6 +75,7 @@ __all__ = [
     "ContextStrategy",
     "Decision",
     "Done",
+    "FallbackModel",
     "FileStore",
     "Guard",
     "GuardContext",
@@ -88,9 +91,11 @@ __all__ = [
     "MockModel",
     "ModelFn",
     "ModelResponse",
+    "OutputValidator",
     "PiiRedactionGuard",
     "PiiUrlGuard",
     "RecipientTrustGuard",
+    "RetryModel",
     "Role",
     "Store",
     "StreamingModelFn",
@@ -115,10 +120,13 @@ __all__ = [
     "bounded_gather",
     "console_confirm",
     "cost_usd",
+    "json_output",
     "message_from_dict",
     "message_to_dict",
     "outcome_from_dict",
     "outcome_to_dict",
+    "pydantic_output",
+    "regex_output",
     "register_price",
     "secure_defaults",
     "subagent_tool",

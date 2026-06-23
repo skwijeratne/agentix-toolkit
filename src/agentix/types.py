@@ -82,6 +82,7 @@ class AgentOutcome:
 
     status: str  # "completed" | "aborted" | "refused"
     answer: str | None = None
+    parsed: Any = None  # validated/parsed answer, when an output_validator is set
     reason: str | None = None
     steps: int = 0
     tokens_used: int = 0

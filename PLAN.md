@@ -113,8 +113,13 @@ agentix/
 - **P8 — Dynamic permissions.** ✅ `CallbackGuard(check)` (`can_use_tool`: a
   per-call callback returning allow/deny/confirm or a bool) and
   `ToolAllowlistGuard` (scope a run to a tool subset). Compose with the guard
-  pipeline. Tests + example 15. Reliability/eval phases (P11+) tracked in
-  `PLAN.gaps.md`.
+  pipeline. Tests + example 15.
+- **P11 — Reliability (core).** ◑ Output validation + retry
+  (`Agent(output_validator=, max_output_retries=)` → `outcome.parsed`;
+  `json_output`/`pydantic_output`/`regex_output`) and resilient model wrappers
+  (`RetryModel`, `FallbackModel`). Tests + example 16. Remaining P11
+  (structured-output passthrough, self-consistency, judge) and P12 (eval) /
+  P13 (tracing) tracked in `PLAN.gaps.md`.
 
 > ⚠️ Streaming caveat: `on_answer` egress guards (PII redaction) can't un-send
 > already-streamed deltas — deltas are raw; `Done.outcome.answer` is redacted.

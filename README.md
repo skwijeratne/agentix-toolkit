@@ -26,7 +26,9 @@ outcome = await agent.run("What's the weather in Lisbon?")
 ```
 
 - **Async-first** core loop (`run` / `stream` / `resume`) with a sync wrapper.
-- **Provider-agnostic** — bring any model; a real **Anthropic** adapter is included.
+- **Provider-agnostic** — bring any model, or use a shipped adapter:
+  **Anthropic**, **OpenAI** (+ any OpenAI-compatible URL), **Gemini**,
+  **Bedrock**, **Ollama** (local), and a **LiteLLM** bridge (100+ providers).
 - **Tools from type hints** — one `@tool` decorator generates the JSON schema;
   **MCP** servers and **subagents** plug in as tools too.
 - **Security, opt-in** — trust boundary, permission tiers + dynamic
@@ -54,6 +56,7 @@ With [uv](https://docs.astral.sh/uv/) (recommended):
 ```bash
 uv add agentix-toolkit                       # core (no required deps)
 uv add "agentix-toolkit[anthropic]"          # + Anthropic adapter
+uv add "agentix-toolkit[openai]"             # + OpenAI adapter (pick your provider)
 uv add "agentix-toolkit[anthropic,mcp,otel]" # + MCP client + OpenTelemetry tracing
 ```
 
@@ -63,8 +66,10 @@ Or with pip:
 pip install "agentix-toolkit[anthropic]"
 ```
 
-Extras are opt-in: `anthropic` (the model adapter), `mcp` (MCP client),
-`otel` (OpenTelemetry tracing). The core has **no required dependencies**.
+Extras are opt-in and the core has **no required dependencies**. Provider
+adapters: `anthropic`, `openai`, `gemini`, `bedrock`, `ollama`, `litellm`
+(the LiteLLM bridge reaches 100+ providers on its own). Plus `mcp` (MCP client)
+and `otel` (OpenTelemetry tracing).
 
 ### 2. Run an agent with no API key
 
@@ -199,6 +204,7 @@ Each links to a runnable example in [`examples/`](./examples):
 | Verify | self-consistency + LLM-as-judge | `18_verification.py` |
 | Tracing | OpenTelemetry model/tool/run spans | `19_tracing.py` |
 | Prompts | versioning + rollback; typed Anthropic reasoning knobs | `20_prompts.py` |
+| Providers | OpenAI / Gemini / Bedrock / Ollama / LiteLLM, one-line swap | `21_providers.py` |
 
 ---
 

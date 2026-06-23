@@ -50,7 +50,15 @@ from .model import ModelFn, ToolSchema
 from .policy import AgentPolicy, Tier
 from .pricing import cost_usd, register_price
 from .prompts import PromptRegistry, PromptVersion
-from .providers import AnthropicModel, MockModel
+from .providers import (
+    AnthropicModel,
+    BedrockModel,
+    GeminiModel,
+    LiteLLMModel,
+    MockModel,
+    OllamaModel,
+    OpenAIModel,
+)
 from .resilience import FallbackModel, RetryModel
 from .serde import message_from_dict, message_to_dict, outcome_from_dict, outcome_to_dict
 from .store import FileStore, MemoryStore, Store
@@ -91,6 +99,7 @@ __all__ = [
     "AgentStreamEvent",
     "AnswerDelta",
     "AnthropicModel",
+    "BedrockModel",
     "BudgetExceeded",
     "CallbackGuard",
     "Case",
@@ -102,6 +111,7 @@ __all__ = [
     "EvalReport",
     "FallbackModel",
     "FileStore",
+    "GeminiModel",
     "Guard",
     "GuardContext",
     "GuardError",
@@ -110,6 +120,7 @@ __all__ = [
     "Interrupt",
     "JudgeGuard",
     "Limiter",
+    "LiteLLMModel",
     "LocalToolExecutor",
     "MCPServer",
     "Message",
@@ -117,6 +128,8 @@ __all__ = [
     "MockModel",
     "ModelFn",
     "ModelResponse",
+    "OllamaModel",
+    "OpenAIModel",
     "OutputValidator",
     "PiiRedactionGuard",
     "PiiUrlGuard",

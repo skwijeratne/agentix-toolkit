@@ -29,6 +29,7 @@ uv run python examples/01_hello_agent.py
 | `16_reliability.py` | Output validation + retry; resilient models (`RetryModel`/`FallbackModel`). | — |
 | `17_eval.py` | Eval harness: score an agent over golden cases, gate CI on pass rate. | — |
 | `18_verification.py` | Self-consistency (`SelfConsistencyModel`) + LLM-as-judge (`JudgeGuard`). | — |
+| `19_tracing.py` | OpenTelemetry tracing: model/tool/run spans. | `agentix[otel]` + `opentelemetry-sdk` |
 
 To run the Anthropic example:
 

@@ -28,6 +28,7 @@ dependencies = []
 [project.optional-dependencies]
 anthropic = ["anthropic>=0.40"]
 mcp = ["mcp>=1.0"]
+otel = ["opentelemetry-api>=1.20"]
 
 # Dev tooling lives in a PEP 735 dependency group, installed by `uv sync`
 # (uv includes the `dev` group by default). Not published as an extra.
@@ -61,3 +62,8 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 python_version = "3.10"
 strict = true
 files = ["src"]
+
+# Optional, lazily-imported deps — don't require their stubs to type-check.
+[[tool.mypy.overrides]]
+module = ["opentelemetry.*"]
+ignore_missing_imports = true

@@ -63,6 +63,7 @@ from .streaming import (
 )
 from .subagents import subagent_tool
 from .tools import Tool, ToolRegistry, tool
+from .tracing import TracingModel, trace_run, tracing_events
 from .types import (
     AgentOutcome,
     Message,
@@ -133,6 +134,7 @@ __all__ = [
     "ToolResult",
     "ToolSchema",
     "ToolStarted",
+    "TracingModel",
     "TrimRounds",
     "TruncateToolOutputs",
     "UntrustedDataGuard",
@@ -159,5 +161,7 @@ __all__ = [
     "secure_defaults",
     "subagent_tool",
     "tool",
+    "trace_run",
+    "tracing_events",
     "wrap_as_untrusted_data",
 ]

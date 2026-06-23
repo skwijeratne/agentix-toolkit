@@ -123,8 +123,12 @@ agentix/
 - **P12 — Eval harness.** ✅ `agentix.evals`: `evaluate(dataset, agent, scorer=)`
   → `EvalReport` (`pass_rate`, `format_success_rate`, `assert_pass_rate()` to
   gate CI). Scorers: `exact_match`/`contains`/`regex_match`/`predicate`/
-  `llm_judge`. Tests + example 17. Remaining P11 (structured-output passthrough,
-  self-consistency, standalone judge) and P13 (tracing) in `PLAN.gaps.md`.
+  `llm_judge`. Tests + example 17.
+- **P13 — OpenTelemetry tracing.** ✅ `agentix.tracing` (`agentix[otel]`):
+  `TracingModel` (model spans), `tracing_events()` (tool spans + guard/confirm),
+  `trace_run()` (root span). Tests + example 19 (verified vs the real OTel SDK).
+  Roadmap remainders (prompt versioning, citation guard, eval loaders) in
+  `PLAN.gaps.md`.
 
 > ⚠️ Streaming caveat: `on_answer` egress guards (PII redaction) can't un-send
 > already-streamed deltas — deltas are raw; `Done.outcome.answer` is redacted.

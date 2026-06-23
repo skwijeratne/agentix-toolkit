@@ -25,6 +25,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   on failure (an `on_answer` safety/on-brand/format gate).
 - Anthropic adapter: structured-output passthrough documented
   (`output_config={"format": ...}`) and `strict` tool schemas forwarded.
+- OpenTelemetry tracing (`agentix[otel]`): `TracingModel`, `tracing_events`, and
+  `trace_run` produce a span tree (run → model/tool spans) for your observability
+  stack.
 
 ## [0.1.0] - 2026-06-22
 

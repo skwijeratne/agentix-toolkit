@@ -6,7 +6,23 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-06-23
+
+### Fixed
+- `agentix.__version__` now reflects the installed distribution version (derived
+  from package metadata) instead of a hardcoded string that could drift. (0.2.0
+  shipped reporting `0.1.0`.)
+
+## [0.2.0] - 2026-06-23
+
 ### Added
+- Subagents: `subagent_tool(agent, ...)` exposes a child agent as a delegable
+  tool (its own model/system prompt/tools/guards); composes with the loop and
+  `bounded_gather`.
+- Cost & control: USD cost tracking (`pricing` module, `cost_usd`, and
+  `cost_usd` on `ModelResponse`/`AgentOutcome`; the Anthropic adapter fills
+  `input_tokens`/`output_tokens`/`cost_usd`); `AgentPolicy.max_budget_usd`; and
+  `Interrupt` to stop a run/stream at a safe boundary.
 - Dynamic permissions: `CallbackGuard` (a `can_use_tool`-style per-call callback
   returning allow/deny/confirm) and `ToolAllowlistGuard` (scope a run to a
   subset of tools).
@@ -66,5 +82,7 @@ Initial release.
   `cost_usd`; `AgentPolicy.max_budget_usd` aborts a run over budget.
 - `Interrupt` stops a run or stream at the next safe boundary.
 
-[Unreleased]: https://github.com/skwijeratne/agentix-toolkit/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/skwijeratne/agentix-toolkit/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/skwijeratne/agentix-toolkit/compare/v0.2.0...v0.2.1
+[0.2.0]: https://github.com/skwijeratne/agentix-toolkit/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/skwijeratne/agentix-toolkit/releases/tag/v0.1.0

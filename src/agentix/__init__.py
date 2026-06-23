@@ -74,7 +74,12 @@ from .types import (
 )
 from .validation import OutputValidator, json_output, pydantic_output, regex_output
 
-__version__ = "0.1.0"
+try:
+    from importlib.metadata import PackageNotFoundError, version
+
+    __version__ = version("agentix-toolkit")
+except PackageNotFoundError:  # not installed (e.g. running from a source tree)
+    __version__ = "0.0.0+unknown"
 
 __all__ = [
     "Agent",

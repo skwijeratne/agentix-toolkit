@@ -1,7 +1,8 @@
 # agentix
 
-[![CI](https://github.com/skwijeratne/agentix/actions/workflows/ci.yml/badge.svg)](https://github.com/skwijeratne/agentix/actions/workflows/ci.yml)
-[![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://pypi.org/project/agentix/)
+[![CI](https://github.com/skwijeratne/agentix-toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/skwijeratne/agentix-toolkit/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/agentix-toolkit)](https://pypi.org/project/agentix-toolkit/)
+[![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://pypi.org/project/agentix-toolkit/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
 
 A generic, batteries-included **agent toolkit**. The agent loop, tool-calling,
@@ -40,18 +41,20 @@ outcome = await agent.run("What's the weather in Lisbon?")
 
 ### 1. Install
 
+The distribution is **`agentix-toolkit`**; you import it as **`agentix`**.
+
 With [uv](https://docs.astral.sh/uv/) (recommended):
 
 ```bash
-uv add agentix                      # core
-uv add "agentix[anthropic]"         # + Anthropic adapter
-uv add "agentix[anthropic,mcp]"     # + MCP client support
+uv add agentix-toolkit                      # core
+uv add "agentix-toolkit[anthropic]"         # + Anthropic adapter
+uv add "agentix-toolkit[anthropic,mcp]"     # + MCP client support
 ```
 
 Or with pip:
 
 ```bash
-pip install "agentix[anthropic]"
+pip install "agentix-toolkit[anthropic]"
 ```
 
 ### 2. Run an agent with no API key

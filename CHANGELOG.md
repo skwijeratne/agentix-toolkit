@@ -43,5 +43,5 @@ Initial release.
   `cost_usd`; `AgentPolicy.max_budget_usd` aborts a run over budget.
 - `Interrupt` stops a run or stream at the next safe boundary.
 
-[Unreleased]: https://github.com/skwijeratne/agentix/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/skwijeratne/agentix/releases/tag/v0.1.0
+[Unreleased]: https://github.com/skwijeratne/agentix-toolkit/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/skwijeratne/agentix-toolkit/releases/tag/v0.1.0

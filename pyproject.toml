@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "agentix"
+name = "agentix-toolkit"
 version = "0.1.0"
 description = "A generic, batteries-included agent toolkit: configure the loop, tools, guards, and observability instead of rewriting them."
 readme = "README.md"
@@ -40,8 +40,8 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/skwijeratne/agentix"
-Repository = "https://github.com/skwijeratne/agentix"
+Homepage = "https://github.com/skwijeratne/agentix-toolkit"
+Repository = "https://github.com/skwijeratne/agentix-toolkit"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/agentix"]

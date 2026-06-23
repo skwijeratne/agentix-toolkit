@@ -1,14 +1,18 @@
-# Releasing agentix
+# Releasing agentix-toolkit
+
+> Distribution name: **`agentix-toolkit`** (PyPI). Import name: **`agentix`**.
 
 ## One-time setup: PyPI Trusted Publishing
 
-The release workflow publishes via OIDC (no stored token).
+The release workflow publishes via OIDC (no stored token). Since the project
+doesn't exist on PyPI yet, add a *pending* publisher (the first publish creates
+the project).
 
-1. Create the project on PyPI (and optionally TestPyPI) if it doesn't exist.
-2. On PyPI → the project → **Publishing** → add a *Trusted Publisher*:
-   - Owner: `skwijeratne` · Repository: `agentix`
+1. PyPI → **https://pypi.org/manage/account/publishing/** → add a pending publisher:
+   - PyPI Project Name: `agentix-toolkit`
+   - Owner: `skwijeratne` · Repository: `agentix-toolkit`
    - Workflow: `release.yml` · Environment: `pypi`
-3. In the GitHub repo, create an **Environment** named `pypi`
+2. In the GitHub repo, create an **Environment** named `pypi`
    (Settings → Environments). Add reviewers if you want a manual approval gate.
 
 ## Cutting a release

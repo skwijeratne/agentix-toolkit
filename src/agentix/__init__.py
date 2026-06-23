@@ -17,7 +17,17 @@ from .content import (
     ImagePart,
     TextPart,
 )
-from .context import ContextStrategy, TrimRounds, TruncateToolOutputs
+from .context import (
+    ContextStrategy,
+    FitContextWindow,
+    HeuristicTokenCounter,
+    TokenCounter,
+    TrimRounds,
+    TruncateToolOutputs,
+    approx_token_counter,
+    count_message_tokens,
+    count_tokens,
+)
 from .control import Interrupt
 from .errors import AgentError, BudgetExceeded, GuardError, ToolError
 from .evals import (
@@ -124,11 +134,13 @@ __all__ = [
     "EvalReport",
     "FallbackModel",
     "FileStore",
+    "FitContextWindow",
     "GeminiModel",
     "Guard",
     "GuardContext",
     "GuardError",
     "GuardPipeline",
+    "HeuristicTokenCounter",
     "ImagePart",
     "InjectionGuard",
     "Interrupt",
@@ -163,6 +175,7 @@ __all__ = [
     "TextPart",
     "Tier",
     "TierGuard",
+    "TokenCounter",
     "Tool",
     "ToolAllowlistGuard",
     "ToolCall",
@@ -180,10 +193,13 @@ __all__ = [
     "__version__",
     "always_approve",
     "always_deny",
+    "approx_token_counter",
     "bounded_gather",
     "console_confirm",
     "contains",
     "cost_usd",
+    "count_message_tokens",
+    "count_tokens",
     "evaluate",
     "exact_match",
     "json_output",

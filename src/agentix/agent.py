@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import asyncio
 import inspect
-from collections.abc import AsyncIterator, Iterable, Sequence
+from collections.abc import AsyncIterator, Iterable, Mapping, Sequence
 from contextlib import AbstractAsyncContextManager, nullcontext
 from typing import Any
 
@@ -39,7 +39,7 @@ from .streaming import (
     ToolStarted,
 )
 from .tools import Tool, ToolRegistry
-from .types import AgentOutcome, Message, ModelResponse, Role, ToolCall
+from .types import AgentOutcome, Message, ModelResponse, PendingApproval, Role, ToolCall
 from .validation import OutputValidator
 
 
@@ -72,6 +72,7 @@ class Agent:
         tool_schemas: Sequence[ToolSchema] | None = None,
         guards: Iterable[Guard] | None = None,
         confirm_fn: ConfirmFn | None = None,
+        suspend_on_confirm: bool = False,
         events: AgentEvents | None = None,
         store: Store | None = None,
         model_limiter: Limiter | None = None,
@@ -95,6 +96,12 @@ class Agent:
         # `guards=secure_defaults()` (or your own list) to turn on protections.
         self.guards = GuardPipeline(list(guards)) if guards is not None else GuardPipeline()
         self.confirm_fn = confirm_fn
+        # When True, a tool requiring confirmation pauses the run: the loop
+        # checkpoints and returns status="suspended" instead of awaiting
+        # confirm_fn inline — so a web/serverless caller can persist and resume on
+        # a later request (see resume(decisions=...)). Requires a store + run_id.
+        # Applies to run()/resume(); stream() still confirms inline.
+        self.suspend_on_confirm = suspend_on_confirm
         self.events = events or AgentEvents()
 
         # `tools=` is the high-level path: build a registry that serves as both
@@ -129,10 +136,18 @@ class Agent:
         self,
         run_id: str,
         *,
+        decisions: Mapping[str, bool] | None = None,
         store: Store | None = None,
         interrupt: Interrupt | None = None,
     ) -> AgentOutcome:
-        """Reload a checkpointed run and continue the loop from where it stopped."""
+        """Reload a checkpointed run and continue the loop from where it stopped.
+
+        For a run **suspended** awaiting confirmation (``suspend_on_confirm``),
+        pass ``decisions`` mapping each pending ``call.id`` to ``True`` (approve)
+        or ``False`` (deny). A pending call with no entry is denied (fail closed).
+        This may be called on a *fresh* ``Agent`` in a later process — the paused
+        state lives entirely in the store.
+        """
         effective = store or self.store
         if effective is None:
             raise AgentError("resume() requires a store (on the Agent or as an argument)")
@@ -140,14 +155,21 @@ class Agent:
         if state is None:
             raise AgentError(f"no saved run found for run_id {run_id!r}")
         messages = transcript_from_dicts(state["messages"])
+        steps = int(state["steps"])
+        tokens_used = int(state["tokens_used"])
+        cost_usd = float(state.get("cost_usd", 0.0))
+
+        # If the transcript tail is an assistant tool-turn with no results yet,
+        # this run was suspended for approval — finish that turn with `decisions`
+        # before continuing the loop.
+        if self._has_unfinished_tool_turn(messages):
+            calls: list[ToolCall] = list(messages[-1].meta.get("tool_calls", []))
+            for call in calls:
+                messages.append(await self._handle_call(call, approvals=decisions))
+            await self._checkpoint(effective, run_id, steps, tokens_used, cost_usd, messages)
+
         return await self._loop(
-            messages,
-            int(state["steps"]),
-            int(state["tokens_used"]),
-            float(state.get("cost_usd", 0.0)),
-            run_id,
-            effective,
-            interrupt,
+            messages, steps, tokens_used, cost_usd, run_id, effective, interrupt
         )
 
     def run_sync(
@@ -163,13 +185,19 @@ class Agent:
             "run_sync() cannot be called from a running event loop; await run() instead."
         )
 
-    def resume_sync(self, run_id: str, *, store: Store | None = None) -> AgentOutcome:
+    def resume_sync(
+        self,
+        run_id: str,
+        *,
+        decisions: Mapping[str, bool] | None = None,
+        store: Store | None = None,
+    ) -> AgentOutcome:
         """Blocking wrapper around :meth:`resume`. Do not call from inside a
         running event loop."""
         try:
             asyncio.get_running_loop()
         except RuntimeError:
-            return asyncio.run(self.resume(run_id, store=store))
+            return asyncio.run(self.resume(run_id, decisions=decisions, store=store))
         raise RuntimeError(
             "resume_sync() cannot be called from a running event loop; await resume() instead."
         )
@@ -327,6 +355,22 @@ class Agent:
                 return outcome
 
             messages.append(self._assistant_tool_turn(response))
+
+            # Suspend path: if any call needs human confirmation, pause *before*
+            # executing anything (no partial side effects). Checkpoint with the
+            # assistant tool-turn as the tail so resume() can finish it later.
+            if self.suspend_on_confirm:
+                pending = await self._pending_approvals(response.tool_calls)
+                if pending:
+                    if store is None or run_id is None:
+                        raise AgentError(
+                            "suspend_on_confirm requires a store and a run_id so the "
+                            "paused run can be persisted and resumed; pass run_id= to "
+                            "run() on an Agent constructed with store=."
+                        )
+                    await self._checkpoint(store, run_id, steps, tokens_used, cost_usd, messages)
+                    return await self._suspend(pending, steps, tokens_used, cost_usd, messages)
+
             for call in response.tool_calls:
                 messages.append(await self._handle_call(call))
 
@@ -434,7 +478,9 @@ class Agent:
 
     # ── per-call handling ─────────────────────────────────────────────────
 
-    async def _handle_call(self, call: ToolCall) -> Message:
+    async def _handle_call(
+        self, call: ToolCall, *, approvals: Mapping[str, bool] | None = None
+    ) -> Message:
         await self.events.emit("on_tool_call", call)
 
         if self.tool_executor is None:
@@ -450,7 +496,7 @@ class Agent:
         if decision.is_deny:
             return self._tool_msg(call, f"REFUSED: {decision.reason}", ok=False)
         if decision.is_confirm:
-            approved = await self._confirm(call, decision.reason)
+            approved = await self._resolve_confirm(call, decision.reason, approvals)
             await self.events.emit("on_confirm", call, approved)
             if not approved:
                 return self._tool_msg(call, "User declined this action.", ok=False)
@@ -469,6 +515,17 @@ class Agent:
         await self.events.emit("on_tool_result", call, msg)
         return msg
 
+    async def _resolve_confirm(
+        self, call: ToolCall, reason: str, approvals: Mapping[str, bool] | None
+    ) -> bool:
+        # On resume, a pre-supplied human decision wins; otherwise ask confirm_fn.
+        # A pending call with no decision falls through and (absent confirm_fn)
+        # fails closed.
+        cid = call.id
+        if approvals and cid is not None and cid in approvals:
+            return bool(approvals[cid])
+        return await self._confirm(call, reason)
+
     async def _confirm(self, call: ToolCall, reason: str) -> bool:
         # Fail closed: a confirmation was required but no confirmer is wired.
         if self.confirm_fn is None:
@@ -477,6 +534,47 @@ class Agent:
         if inspect.isawaitable(result):
             result = await result
         return bool(result)
+
+    async def _pending_approvals(self, calls: Sequence[ToolCall]) -> list[PendingApproval]:
+        """Classify a turn's calls (before_call only) and return those that need
+        human confirmation. Does not emit events or execute — the real handling
+        happens in :meth:`_handle_call` once the run resumes."""
+        if self.tool_executor is None:
+            return []
+        pending: list[PendingApproval] = []
+        for call in calls:
+            decision = await self.guards.before_call(call, GuardContext(self.policy))
+            if decision.is_confirm:
+                pending.append(PendingApproval(call, decision.reason))
+        return pending
+
+    async def _suspend(
+        self,
+        pending: list[PendingApproval],
+        steps: int,
+        tokens: int,
+        cost_usd: float,
+        transcript: list[Message],
+    ) -> AgentOutcome:
+        outcome = AgentOutcome(
+            status="suspended",
+            reason="awaiting_confirmation",
+            steps=steps,
+            tokens_used=tokens,
+            cost_usd=cost_usd,
+            transcript=transcript,
+            pending=pending,
+        )
+        await self.events.emit("on_suspend", outcome)
+        return outcome
+
+    @staticmethod
+    def _has_unfinished_tool_turn(messages: list[Message]) -> bool:
+        """True if the transcript tail is an assistant tool-turn with no results
+        yet — the signature of a run suspended for confirmation."""
+        return bool(messages) and messages[-1].role is Role.ASSISTANT and bool(
+            messages[-1].meta.get("tool_calls")
+        )
 
     # ── helpers ───────────────────────────────────────────────────────────
 

@@ -40,6 +40,10 @@ outcome = await agent.run("What's the weather in Lisbon?")
   isolated subprocess (no network by default, plus CPU/memory/fs limits).
 - **Cost & control** — token **and USD** cost tracking, step/token/USD budgets,
   cooperative `Interrupt`.
+- **Human-in-the-loop, durably** — `suspend_on_confirm` pauses at a confirmation,
+  persists, and returns `status="suspended"`; `resume(run_id, decisions=…)`
+  approves/denies on a later request (web/serverless-friendly), not just an
+  inline blocking prompt.
 - **Reliability** — output **validation + retry** (`outcome.parsed`), model
   **fallback/retry**, self-consistency, and LLM-as-judge.
 - **Scale & ops** — streaming, checkpoint/resume, context trimming, fleet
@@ -212,6 +216,7 @@ Each links to a runnable example in [`examples/`](./examples):
 | Providers | OpenAI / Gemini / Bedrock / Ollama / LiteLLM, one-line swap | `21_providers.py` |
 | Multimodal | text + image / PDF / audio parts; per-adapter translation | `22_multimodal.py` |
 | Sandbox | run untrusted code in an isolated subprocess (no net, rlimits) | `23_sandbox.py` |
+| Suspend/resume | pause for human approval, persist, resume on a later request | `24_suspend_resume.py` |
 
 ---
 

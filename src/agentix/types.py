@@ -92,10 +92,22 @@ class ModelResponse:
 
 
 @dataclass
-class AgentOutcome:
-    """Terminal result of an agent run."""
+class PendingApproval:
+    """A tool call paused awaiting a human decision (``status == "suspended"``).
 
-    status: str  # "completed" | "aborted" | "refused"
+    Returned on :attr:`AgentOutcome.pending`; approve or deny it by passing
+    ``{call.id: True/False}`` to :meth:`~agentix.Agent.resume`.
+    """
+
+    call: ToolCall
+    reason: str = ""
+
+
+@dataclass
+class AgentOutcome:
+    """Terminal (or suspended) result of an agent run."""
+
+    status: str  # "completed" | "aborted" | "refused" | "suspended"
     answer: str | None = None
     parsed: Any = None  # validated/parsed answer, when an output_validator is set
     reason: str | None = None
@@ -103,3 +115,5 @@ class AgentOutcome:
     tokens_used: int = 0
     cost_usd: float = 0.0
     transcript: list[Message] = field(default_factory=list)
+    # Tool calls awaiting human approval when status == "suspended".
+    pending: list[PendingApproval] = field(default_factory=list)

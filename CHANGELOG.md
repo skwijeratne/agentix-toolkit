@@ -7,6 +7,16 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- Suspendable human-in-the-loop (P18) — `Agent(suspend_on_confirm=True)` pauses a
+  run when a tool needs confirmation instead of awaiting `confirm_fn` inline: it
+  checkpoints (with the assistant tool-turn as the tail) and returns
+  `AgentOutcome(status="suspended", pending=[PendingApproval(...)])`. A later
+  `resume(run_id, decisions={call_id: bool})` — on the same or a brand-new Agent,
+  since the state lives in the store — finishes that turn (approve/deny;
+  undecided pending calls fail closed) and continues. Requires a store + run_id;
+  adds the `on_suspend` event and the `PendingApproval` type. Built for
+  web/serverless flows where the request coroutine can't block. See
+  `examples/24_suspend_resume.py`.
 - Sandboxed execution (P16) — `SubprocessExecutor` (a `ToolExecutor`) runs each
   tool as a separate OS process and actually enforces the limits the loop passes:
   network egress is **denied when `network_allowlist` is empty** (Linux network

@@ -36,8 +36,8 @@ outcome = await agent.run("What's the weather in Lisbon?")
 - **Reliability** — output **validation + retry** (`outcome.parsed`), model
   **fallback/retry**, self-consistency, and LLM-as-judge.
 - **Scale & ops** — streaming, checkpoint/resume, context trimming, fleet
-  backpressure, an **eval harness** (gate CI on quality), and **OpenTelemetry**
-  tracing.
+  backpressure, an **eval harness** (gate CI on quality), **OpenTelemetry**
+  tracing, and **prompt versioning** (roll back a regressed prompt).
 
 > Status: **alpha**, under active development. APIs may change before `1.0`.
 
@@ -198,6 +198,7 @@ Each links to a runnable example in [`examples/`](./examples):
 | Eval | score golden cases, gate CI on pass rate | `17_eval.py` |
 | Verify | self-consistency + LLM-as-judge | `18_verification.py` |
 | Tracing | OpenTelemetry model/tool/run spans | `19_tracing.py` |
+| Prompts | versioning + rollback; typed Anthropic reasoning knobs | `20_prompts.py` |
 
 ---
 

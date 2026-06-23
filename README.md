@@ -31,6 +31,9 @@ outcome = await agent.run("What's the weather in Lisbon?")
   **Bedrock**, **Ollama** (local), and a **LiteLLM** bridge (100+ providers).
 - **Tools from type hints** — one `@tool` decorator generates the JSON schema;
   **MCP** servers and **subagents** plug in as tools too.
+- **Multimodal input** — a message is a string *or* a list of parts: text plus
+  **images / PDFs / audio**, translated per adapter (clear errors for what a
+  given provider can't accept).
 - **Security, opt-in** — trust boundary, permission tiers + dynamic
   `can_use_tool` callbacks, PII/injection guards, human confirmation, audit events.
 - **Cost & control** — token **and USD** cost tracking, step/token/USD budgets,
@@ -205,6 +208,7 @@ Each links to a runnable example in [`examples/`](./examples):
 | Tracing | OpenTelemetry model/tool/run spans | `19_tracing.py` |
 | Prompts | versioning + rollback; typed Anthropic reasoning knobs | `20_prompts.py` |
 | Providers | OpenAI / Gemini / Bedrock / Ollama / LiteLLM, one-line swap | `21_providers.py` |
+| Multimodal | text + image / PDF / audio parts; per-adapter translation | `22_multimodal.py` |
 
 ---
 

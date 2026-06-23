@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from .content import part_from_dict, part_to_dict
 from .types import AgentOutcome, Message, Role, ToolCall
 
 SCHEMA_VERSION = 1
@@ -31,9 +32,14 @@ def message_to_dict(msg: Message) -> dict[str, Any]:
             **meta,
             "tool_calls": [tool_call_to_dict(c) for c in meta["tool_calls"]],
         }
+    content: Any = (
+        msg.content
+        if isinstance(msg.content, str)
+        else [part_to_dict(p) for p in msg.content]
+    )
     return {
         "role": msg.role.value,
-        "content": msg.content,
+        "content": content,
         "trusted": msg.trusted,
         "name": msg.name,
         "meta": meta,
@@ -47,9 +53,13 @@ def message_from_dict(d: dict[str, Any]) -> Message:
             **meta,
             "tool_calls": [tool_call_from_dict(c) for c in meta["tool_calls"]],
         }
+    raw = d["content"]
+    content = (
+        [part_from_dict(p) for p in raw] if isinstance(raw, list) else raw
+    )
     return Message(
         role=Role(d["role"]),
-        content=d["content"],
+        content=content,
         trusted=bool(d.get("trusted", False)),
         name=d.get("name"),
         meta=meta,

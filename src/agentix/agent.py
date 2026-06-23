@@ -17,6 +17,7 @@ from typing import Any
 
 from .concurrency import Limiter
 from .confirm import ConfirmFn
+from .content import ContentPart
 from .context import ContextStrategy
 from .control import Interrupt
 from .errors import AgentError
@@ -113,7 +114,7 @@ class Agent:
 
     async def run(
         self,
-        user_request: str,
+        user_request: str | list[ContentPart],
         *,
         run_id: str | None = None,
         interrupt: Interrupt | None = None,
@@ -149,7 +150,9 @@ class Agent:
             interrupt,
         )
 
-    def run_sync(self, user_request: str, *, run_id: str | None = None) -> AgentOutcome:
+    def run_sync(
+        self, user_request: str | list[ContentPart], *, run_id: str | None = None
+    ) -> AgentOutcome:
         """Blocking convenience wrapper for scripts/CLIs. Do not call from
         inside a running event loop."""
         try:
@@ -173,7 +176,7 @@ class Agent:
 
     async def stream(
         self,
-        user_request: str,
+        user_request: str | list[ContentPart],
         *,
         run_id: str | None = None,
         interrupt: Interrupt | None = None,
@@ -386,7 +389,7 @@ class Agent:
             "Correct the issue and respond again with only the valid output."
         )
 
-    def _seed_messages(self, user_request: str) -> list[Message]:
+    def _seed_messages(self, user_request: str | list[ContentPart]) -> list[Message]:
         # Trust boundary: only the system prompt and the genuine user request
         # are trusted as instructions. Tool output never is.
         return [

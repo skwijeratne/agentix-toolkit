@@ -7,6 +7,14 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- Multimodal input (P15) — `Message.content` is now `str | list[ContentPart]`,
+  with `TextPart`, `ImagePart`, `DocumentPart`, and `AudioPart` (build via
+  `from_path` / `from_bytes` / `from_base64` / `from_url`). `Message.text` gives
+  a string view. `Agent.run`/`run_sync`/`stream` accept a parts list anywhere a
+  string request goes. Every adapter translates supported media to its provider
+  format and raises a clear error otherwise (e.g. audio on Anthropic, URL images
+  on Bedrock). Plain-string content is fully backward compatible. See
+  `examples/22_multimodal.py`.
 - Multi-provider adapters (P14) — the toolkit now ships five more model
   backends alongside Anthropic, each behind its own extra and each a drop-in
   `ModelFn`: `OpenAIModel` (`agentix[openai]`; Chat Completions, also drives any

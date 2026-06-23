@@ -10,6 +10,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 
+from .content import ContentPart, TextPart
+
 
 class Role(str, Enum):
     """Author of a conversation message."""
@@ -24,6 +26,11 @@ class Role(str, Enum):
 class Message:
     """A single conversation message.
 
+    ``content`` is either a plain ``str`` (the common case) or a list of
+    :class:`~agentix.content.ContentPart` for multimodal input (text interleaved
+    with images / documents / audio). Use :attr:`text` for a string view that
+    works regardless.
+
     ``trusted`` marks whether the content originated from the real user
     (an instruction source) rather than from tool output (data to reason
     *about*, never instructions to follow). The loop sets this; guards and
@@ -31,10 +38,18 @@ class Message:
     """
 
     role: Role
-    content: str
+    content: str | list[ContentPart]
     trusted: bool = False
     name: str | None = None  # tool name, for tool-result messages
     meta: dict[str, Any] = field(default_factory=dict)
+
+    @property
+    def text(self) -> str:
+        """The textual content: the string itself, or the concatenation of the
+        :class:`~agentix.content.TextPart` parts (media parts contribute nothing)."""
+        if isinstance(self.content, str):
+            return self.content
+        return "".join(p.text for p in self.content if isinstance(p, TextPart))
 
 
 @dataclass

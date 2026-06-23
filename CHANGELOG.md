@@ -19,6 +19,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   returns an `EvalReport` with `pass_rate` / `format_success_rate` /
   `assert_pass_rate()` (gate CI on regressions). Scorers: `exact_match`,
   `contains`, `regex_match`, `predicate`, `llm_judge`.
+- `SelfConsistencyModel`: sample a model N times per turn and return the majority
+  vote (drop-in `ModelFn`).
+- `JudgeGuard`: an LLM reviews the final answer against a rubric and replaces it
+  on failure (an `on_answer` safety/on-brand/format gate).
+- Anthropic adapter: structured-output passthrough documented
+  (`output_config={"format": ...}`) and `strict` tool schemas forwarded.
 
 ## [0.1.0] - 2026-06-22
 

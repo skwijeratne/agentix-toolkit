@@ -28,6 +28,7 @@ uv run python examples/01_hello_agent.py
 | `15_permissions.py` | Dynamic permissions: `CallbackGuard` (can_use_tool) + `ToolAllowlistGuard`. | — |
 | `16_reliability.py` | Output validation + retry; resilient models (`RetryModel`/`FallbackModel`). | — |
 | `17_eval.py` | Eval harness: score an agent over golden cases, gate CI on pass rate. | — |
+| `18_verification.py` | Self-consistency (`SelfConsistencyModel`) + LLM-as-judge (`JudgeGuard`). | — |
 
 To run the Anthropic example:
 

@@ -114,10 +114,12 @@ agentix/
   per-call callback returning allow/deny/confirm or a bool) and
   `ToolAllowlistGuard` (scope a run to a tool subset). Compose with the guard
   pipeline. Tests + example 15.
-- **P11 — Reliability (core).** ◑ Output validation + retry
+- **P11 — Reliability & correctness.** ✅ Output validation + retry
   (`Agent(output_validator=, max_output_retries=)` → `outcome.parsed`;
-  `json_output`/`pydantic_output`/`regex_output`) and resilient model wrappers
-  (`RetryModel`, `FallbackModel`). Tests + example 16.
+  `json_output`/`pydantic_output`/`regex_output`); resilient model wrappers
+  (`RetryModel`, `FallbackModel`); `SelfConsistencyModel` (majority vote);
+  `JudgeGuard` (LLM answer gate); structured-output passthrough on the Anthropic
+  adapter. Examples 16 + 18.
 - **P12 — Eval harness.** ✅ `agentix.evals`: `evaluate(dataset, agent, scorer=)`
   → `EvalReport` (`pass_rate`, `format_success_rate`, `assert_pass_rate()` to
   gate CI). Scorers: `exact_match`/`contains`/`regex_match`/`predicate`/

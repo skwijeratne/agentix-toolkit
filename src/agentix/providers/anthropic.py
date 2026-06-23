@@ -42,7 +42,11 @@ class AnthropicModel:
         agent = Agent(model=AnthropicModel(), system_prompt="...")
 
     ``extra`` keyword arguments are forwarded to ``messages.create`` — use them
-    for ``thinking``, ``output_config``, etc.
+    for ``thinking``, ``effort``, and structured outputs. For provider-enforced
+    JSON, pass ``output_config={"format": {"type": "json_schema", "schema": ...}}``;
+    pair it with the agent's ``output_validator`` for client-side validation +
+    retry. Tool schemas carrying a ``strict`` key are forwarded for strict tool
+    validation.
     """
 
     def __init__(
@@ -154,13 +158,14 @@ class AnthropicModel:
                 "type": "object",
                 "properties": {},
             }
-            out.append(
-                {
-                    "name": t["name"],
-                    "description": t.get("description", ""),
-                    "input_schema": schema,
-                }
-            )
+            entry: dict[str, Any] = {
+                "name": t["name"],
+                "description": t.get("description", ""),
+                "input_schema": schema,
+            }
+            if "strict" in t:  # forward strict tool-schema enforcement if requested
+                entry["strict"] = t["strict"]
+            out.append(entry)
         return out
 
     # ── Anthropic -> agentix ──────────────────────────────────────────────

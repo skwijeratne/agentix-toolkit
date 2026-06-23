@@ -9,6 +9,7 @@ from __future__ import annotations
 from .agent import Agent
 from .concurrency import Limiter, bounded_gather
 from .confirm import ConfirmFn, always_approve, always_deny, console_confirm
+from .consistency import SelfConsistencyModel
 from .context import ContextStrategy, TrimRounds, TruncateToolOutputs
 from .control import Interrupt
 from .errors import AgentError, BudgetExceeded, GuardError, ToolError
@@ -34,6 +35,7 @@ from .guards import (
     GuardContext,
     GuardPipeline,
     InjectionGuard,
+    JudgeGuard,
     PiiRedactionGuard,
     PiiUrlGuard,
     RecipientTrustGuard,
@@ -99,6 +101,7 @@ __all__ = [
     "GuardPipeline",
     "InjectionGuard",
     "Interrupt",
+    "JudgeGuard",
     "Limiter",
     "LocalToolExecutor",
     "MCPServer",
@@ -115,6 +118,7 @@ __all__ = [
     "Role",
     "Score",
     "Scorer",
+    "SelfConsistencyModel",
     "Store",
     "StreamingModelFn",
     "Tier",

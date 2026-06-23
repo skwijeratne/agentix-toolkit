@@ -15,6 +15,7 @@ from .injection import (
     default_injection_detector,
     wrap_as_untrusted_data,
 )
+from .judge import JudgeGuard
 from .permissions import (
     CallbackGuard,
     PermissionCheck,
@@ -35,6 +36,7 @@ __all__ = [
     "GuardPipeline",
     "InjectionDetector",
     "InjectionGuard",
+    "JudgeGuard",
     "PermissionCheck",
     "PermissionResult",
     "PiiRedactionGuard",

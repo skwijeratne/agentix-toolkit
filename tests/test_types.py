@@ -5,7 +5,8 @@ from agentix import Message, ModelResponse, Role, ToolCall, ToolResult
 
 
 def test_public_api_exports() -> None:
-    assert agentix.__version__ == "0.1.0"
+    # __version__ is derived from package metadata; just assert it's a string.
+    assert isinstance(agentix.__version__, str) and agentix.__version__
     assert Message and Role and ToolCall and ToolResult and ModelResponse
 
 

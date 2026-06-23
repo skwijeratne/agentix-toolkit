@@ -6,6 +6,13 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-06-23
+
+### Fixed
+- `agentix.__version__` now reflects the installed distribution version (derived
+  from package metadata) instead of a hardcoded string that could drift. (0.2.0
+  shipped reporting `0.1.0`.)
+
 ## [0.2.0] - 2026-06-23
 
 ### Added
@@ -75,6 +82,7 @@ Initial release.
   `cost_usd`; `AgentPolicy.max_budget_usd` aborts a run over budget.
 - `Interrupt` stops a run or stream at the next safe boundary.
 
-[Unreleased]: https://github.com/skwijeratne/agentix-toolkit/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/skwijeratne/agentix-toolkit/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/skwijeratne/agentix-toolkit/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/skwijeratne/agentix-toolkit/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/skwijeratne/agentix-toolkit/releases/tag/v0.1.0

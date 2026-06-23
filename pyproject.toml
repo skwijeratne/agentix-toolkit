@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "agentix-toolkit"
-version = "0.2.0"
+version = "0.2.1"
 description = "A generic, batteries-included agent toolkit: configure the loop, tools, guards, and observability instead of rewriting them."
 readme = "README.md"
 requires-python = ">=3.10"

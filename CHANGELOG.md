@@ -6,6 +6,11 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- Dynamic permissions: `CallbackGuard` (a `can_use_tool`-style per-call callback
+  returning allow/deny/confirm) and `ToolAllowlistGuard` (scope a run to a
+  subset of tools).
+
 ## [0.1.0] - 2026-06-22
 
 Initial release.

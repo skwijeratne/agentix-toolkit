@@ -25,6 +25,7 @@ uv run python examples/01_hello_agent.py
 | `12_context.py` | Bound the transcript with `TrimRounds` / `TruncateToolOutputs`. | — |
 | `13_subagents.py` | Delegate a subtask to a child agent (`subagent_tool`). | — |
 | `14_cost_and_interrupt.py` | USD cost tracking, `max_budget_usd`, and `Interrupt`. | — |
+| `15_permissions.py` | Dynamic permissions: `CallbackGuard` (can_use_tool) + `ToolAllowlistGuard`. | — |
 
 To run the Anthropic example:
 

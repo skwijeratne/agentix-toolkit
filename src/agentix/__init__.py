@@ -15,6 +15,7 @@ from .errors import AgentError, BudgetExceeded, GuardError, ToolError
 from .events import AgentEvents
 from .executors import LocalToolExecutor, ToolExecutor
 from .guards import (
+    CallbackGuard,
     Decision,
     Guard,
     GuardContext,
@@ -24,6 +25,7 @@ from .guards import (
     PiiUrlGuard,
     RecipientTrustGuard,
     TierGuard,
+    ToolAllowlistGuard,
     UntrustedDataGuard,
     secure_defaults,
     wrap_as_untrusted_data,
@@ -66,6 +68,7 @@ __all__ = [
     "AnswerDelta",
     "AnthropicModel",
     "BudgetExceeded",
+    "CallbackGuard",
     "ConfirmFn",
     "ContextStrategy",
     "Decision",
@@ -94,6 +97,7 @@ __all__ = [
     "Tier",
     "TierGuard",
     "Tool",
+    "ToolAllowlistGuard",
     "ToolCall",
     "ToolError",
     "ToolExecutor",

@@ -15,12 +15,19 @@ from .injection import (
     default_injection_detector,
     wrap_as_untrusted_data,
 )
+from .permissions import (
+    CallbackGuard,
+    PermissionCheck,
+    PermissionResult,
+    ToolAllowlistGuard,
+)
 from .pii import DEFAULT_REDACTION_PATTERNS, PiiRedactionGuard, PiiUrlGuard
 from .tiers import TierGuard
 from .trust import RecipientTrustGuard, TrustPredicate
 
 __all__ = [
     "DEFAULT_REDACTION_PATTERNS",
+    "CallbackGuard",
     "Decision",
     "DecisionType",
     "Guard",
@@ -28,10 +35,13 @@ __all__ = [
     "GuardPipeline",
     "InjectionDetector",
     "InjectionGuard",
+    "PermissionCheck",
+    "PermissionResult",
     "PiiRedactionGuard",
     "PiiUrlGuard",
     "RecipientTrustGuard",
     "TierGuard",
+    "ToolAllowlistGuard",
     "TrustPredicate",
     "UntrustedDataGuard",
     "default_injection_detector",

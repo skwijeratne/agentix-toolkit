@@ -109,8 +109,12 @@ agentix/
 - **P10 — Cost + interrupt.** ✅ `pricing` (per-model table + `cost_usd`);
   `ModelResponse`/`AgentOutcome` carry `cost_usd` (Anthropic adapter fills it);
   `AgentPolicy.max_budget_usd` aborts; `Interrupt` stops a run/stream at a safe
-  boundary. Tests + example 14. (P8 — permission callbacks — still open; see
-  `PLAN.gaps.md`.)
+  boundary. Tests + example 14.
+- **P8 — Dynamic permissions.** ✅ `CallbackGuard(check)` (`can_use_tool`: a
+  per-call callback returning allow/deny/confirm or a bool) and
+  `ToolAllowlistGuard` (scope a run to a tool subset). Compose with the guard
+  pipeline. Tests + example 15. Reliability/eval phases (P11+) tracked in
+  `PLAN.gaps.md`.
 
 > ⚠️ Streaming caveat: `on_answer` egress guards (PII redaction) can't un-send
 > already-streamed deltas — deltas are raw; `Done.outcome.answer` is redacted.

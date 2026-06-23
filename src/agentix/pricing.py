@@ -8,14 +8,27 @@ table for current Claude models and a helper to compute cost. Prices are USD per
 
 from __future__ import annotations
 
-# USD per 1,000,000 tokens: (input, output).
+# USD per 1,000,000 tokens: (input, output). These are convenience defaults for
+# popular hosted models and may drift — override any of them with
+# ``register_price``. Bedrock (region-specific) and local Ollama models are not
+# listed: register Bedrock prices yourself; Ollama inference is free (0.0).
 PRICES: dict[str, tuple[float, float]] = {
+    # Anthropic
     "claude-fable-5": (10.0, 50.0),
     "claude-opus-4-8": (5.0, 25.0),
     "claude-opus-4-7": (5.0, 25.0),
     "claude-opus-4-6": (5.0, 25.0),
     "claude-sonnet-4-6": (3.0, 15.0),
     "claude-haiku-4-5": (1.0, 5.0),
+    # OpenAI
+    "gpt-4o": (2.5, 10.0),
+    "gpt-4o-mini": (0.15, 0.6),
+    "gpt-4.1": (2.0, 8.0),
+    "gpt-4.1-mini": (0.4, 1.6),
+    # Google Gemini
+    "gemini-2.0-flash": (0.1, 0.4),
+    "gemini-1.5-pro": (1.25, 5.0),
+    "gemini-1.5-flash": (0.075, 0.3),
 }
 
 

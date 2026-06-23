@@ -7,6 +7,15 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- Multi-provider adapters (P14) — the toolkit now ships five more model
+  backends alongside Anthropic, each behind its own extra and each a drop-in
+  `ModelFn`: `OpenAIModel` (`agentix[openai]`; Chat Completions, also drives any
+  OpenAI-compatible `base_url`, with streaming), `GeminiModel`
+  (`agentix[gemini]`), `BedrockModel` (`agentix[bedrock]`; AWS Converse API, run
+  off-thread), `OllamaModel` (`agentix[ollama]`; local models), and `LiteLLMModel`
+  (`agentix[litellm]`; one bridge to 100+ providers). Best-effort pricing added
+  for common OpenAI/Gemini models (override with `register_price`). See
+  `examples/21_providers.py`.
 - `AnthropicModel` typed reasoning/cost knobs: `thinking` (`True`/`"adaptive"`/
   `"summarized"`/`"disabled"`/dict), `effort` (`low`…`max`), and `task_budget`
   (int; adds the required beta header) — previously only via opaque `extra`.

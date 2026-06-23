@@ -49,6 +49,7 @@ from .mcp import MCPServer
 from .model import ModelFn, ToolSchema
 from .policy import AgentPolicy, Tier
 from .pricing import cost_usd, register_price
+from .prompts import PromptRegistry, PromptVersion
 from .providers import AnthropicModel, MockModel
 from .resilience import FallbackModel, RetryModel
 from .serde import message_from_dict, message_to_dict, outcome_from_dict, outcome_to_dict
@@ -119,6 +120,8 @@ __all__ = [
     "OutputValidator",
     "PiiRedactionGuard",
     "PiiUrlGuard",
+    "PromptRegistry",
+    "PromptVersion",
     "RecipientTrustGuard",
     "RetryModel",
     "Role",

@@ -6,6 +6,14 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- `AnthropicModel` typed reasoning/cost knobs: `thinking` (`True`/`"adaptive"`/
+  `"summarized"`/`"disabled"`/dict), `effort` (`low`…`max`), and `task_budget`
+  (int; adds the required beta header) — previously only via opaque `extra`.
+  Docstring documents refusal-fallback behavior.
+- `PromptRegistry`: lightweight in-process prompt versioning with `register` /
+  `get` / `rollback` / `render` and `to_dict`/`from_dict` persistence.
+
 ## [0.2.1] - 2026-06-23
 
 ### Fixed

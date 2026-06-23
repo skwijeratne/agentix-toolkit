@@ -20,7 +20,7 @@ Notes on the translation:
 from __future__ import annotations
 
 from collections.abc import AsyncIterator, Sequence
-from typing import Any
+from typing import Any, Literal
 
 from ..model import ToolSchema
 from ..pricing import cost_usd
@@ -29,6 +29,30 @@ from ..types import Message, ModelResponse, Role, ToolCall
 
 #: Default model. Anthropic's most capable Opus-tier model.
 DEFAULT_MODEL = "claude-opus-4-8"
+
+#: Effort level (cost-vs-quality knob), per `output_config.effort`.
+Effort = Literal["low", "medium", "high", "xhigh", "max"]
+
+#: Thinking config: True/"adaptive" -> adaptive, "summarized" -> adaptive w/ a
+#: visible summary, False/"disabled" -> off, or a raw dict for full control.
+Thinking = bool | Literal["adaptive", "summarized", "disabled"] | dict[str, Any]
+
+#: Beta header required by task budgets.
+_TASK_BUDGET_BETA = "task-budgets-2026-03-13"
+
+
+def _coerce_thinking(value: Thinking | None) -> dict[str, Any] | None:
+    if value is None:
+        return None
+    if value is True or value == "adaptive":
+        return {"type": "adaptive"}
+    if value == "summarized":
+        return {"type": "adaptive", "display": "summarized"}
+    if value is False or value == "disabled":
+        return {"type": "disabled"}
+    if isinstance(value, dict):
+        return value
+    raise ValueError(f"unsupported thinking value: {value!r}")
 
 
 class AnthropicModel:
@@ -41,12 +65,32 @@ class AnthropicModel:
 
         agent = Agent(model=AnthropicModel(), system_prompt="...")
 
-    ``extra`` keyword arguments are forwarded to ``messages.create`` — use them
-    for ``thinking``, ``effort``, and structured outputs. For provider-enforced
-    JSON, pass ``output_config={"format": {"type": "json_schema", "schema": ...}}``;
-    pair it with the agent's ``output_validator`` for client-side validation +
-    retry. Tool schemas carrying a ``strict`` key are forwarded for strict tool
-    validation.
+    Typed knobs (the cost-vs-quality / reasoning controls):
+
+    * ``thinking`` — ``True`` / ``"adaptive"`` (let the model decide how much to
+      think), ``"summarized"`` (adaptive + a visible summary), ``"disabled"``, or
+      a raw dict. Note: on Opus 4.7+/Fable, extended thinking is *adaptive only*;
+      ``"disabled"`` is rejected on Fable — omit it there.
+    * ``effort`` — ``"low" | "medium" | "high" | "xhigh" | "max"``; sets
+      ``output_config.effort`` (default is ``"high"``). Lower = fewer tokens.
+    * ``task_budget`` — an int token budget the model self-moderates against for
+      the whole agentic loop (≥ 20000); adds the required beta header. Distinct
+      from ``max_tokens`` (a hard per-response cap).
+
+    ``extra`` keyword arguments are forwarded to ``messages.create``. For
+    provider-enforced JSON, pass
+    ``output_config={"format": {"type": "json_schema", "schema": ...}}`` (merged
+    with ``effort``/``task_budget``); pair with the agent's ``output_validator``
+    for client-side validation + retry. Tool schemas with a ``strict`` key are
+    forwarded for strict tool validation.
+
+    Refusal fallback: a safety *refusal* surfaces as a normal final answer
+    (``stop_reason == "refusal"``), **not** an exception — so
+    :class:`~agentix.resilience.FallbackModel` (which falls back on errors) does
+    **not** catch it. To fall back on a refusal, use the Claude API's server-side
+    ``fallbacks`` parameter (pass it via ``extra``) or detect the refusal text in
+    your app. ``FallbackModel``/``RetryModel`` remain the right tools for
+    *outages and transient errors*.
     """
 
     def __init__(
@@ -56,6 +100,9 @@ class AnthropicModel:
         max_tokens: int = 4096,
         api_key: str | None = None,
         client: Any = None,
+        thinking: Thinking | None = None,
+        effort: Effort | None = None,
+        task_budget: int | None = None,
         **extra: Any,
     ) -> None:
         if client is None:
@@ -70,6 +117,9 @@ class AnthropicModel:
         self._client = client
         self.model = model
         self.max_tokens = max_tokens
+        self.thinking = _coerce_thinking(thinking)
+        self.effort = effort
+        self.task_budget = task_budget
         self.extra = extra
 
     def _build_kwargs(
@@ -86,6 +136,27 @@ class AnthropicModel:
             kwargs["system"] = system
         if tools:
             kwargs["tools"] = self._translate_tools(tools)
+        if self.thinking is not None:
+            kwargs["thinking"] = self.thinking
+
+        # effort and task_budget both live under output_config (merge with any
+        # output_config the caller passed via `extra`, e.g. a structured format).
+        output_config: dict[str, Any] = dict(kwargs.get("output_config") or {})
+        if self.effort is not None:
+            output_config["effort"] = self.effort
+        if self.task_budget is not None:
+            output_config["task_budget"] = {"type": "tokens", "total": self.task_budget}
+        if output_config:
+            kwargs["output_config"] = output_config
+
+        # task budgets are beta-gated — add the header (merge with any existing).
+        if self.task_budget is not None:
+            headers: dict[str, str] = dict(kwargs.get("extra_headers") or {})
+            existing = headers.get("anthropic-beta")
+            headers["anthropic-beta"] = (
+                f"{existing},{_TASK_BUDGET_BETA}" if existing else _TASK_BUDGET_BETA
+            )
+            kwargs["extra_headers"] = headers
         return kwargs
 
     async def __call__(

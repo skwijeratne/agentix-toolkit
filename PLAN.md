@@ -127,8 +127,10 @@ agentix/
 - **P13 — OpenTelemetry tracing.** ✅ `agentix.tracing` (`agentix[otel]`):
   `TracingModel` (model spans), `tracing_events()` (tool spans + guard/confirm),
   `trace_run()` (root span). Tests + example 19 (verified vs the real OTel SDK).
-  Roadmap remainders (prompt versioning, citation guard, eval loaders) in
-  `PLAN.gaps.md`.
+- **Polish.** ✅ Typed `thinking`/`effort`/`task_budget` on `AnthropicModel`
+  (+ refusal-fallback docs); `PromptRegistry` (prompt versioning + rollback).
+  Example 20. The "perfect toolkit" frontier (P14+: more providers, multi-modal,
+  sandboxed executor, docs site, …) is tracked in `PLAN.gaps.md`.
 
 > ⚠️ Streaming caveat: `on_answer` egress guards (PII redaction) can't un-send
 > already-streamed deltas — deltas are raw; `Done.outcome.answer` is redacted.

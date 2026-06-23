@@ -46,8 +46,8 @@ outcome = await agent.run("What's the weather in Lisbon?")
   inline blocking prompt.
 - **Reliability** — output **validation + retry** (`outcome.parsed`), model
   **fallback/retry**, self-consistency, and LLM-as-judge.
-- **Scale & ops** — streaming, checkpoint/resume, context trimming, fleet
-  backpressure, an **eval harness** (gate CI on quality), **OpenTelemetry**
+- **Scale & ops** — streaming, checkpoint/resume, **token-aware** context
+  trimming, fleet backpressure, an **eval harness** (gate CI on quality), **OpenTelemetry**
   tracing, and **prompt versioning** (roll back a regressed prompt).
 
 > Status: **alpha**, under active development. APIs may change before `1.0`.
@@ -205,6 +205,7 @@ Each links to a runnable example in [`examples/`](./examples):
 | Concurrency | `Limiter` + `bounded_gather` for fleets | `10_concurrency.py` |
 | MCP | use any MCP server's tools | `11_mcp.py` |
 | Context | bound the transcript (`TrimRounds`, …) | `12_context.py` |
+| Token context | trim to a real **token** budget (`FitContextWindow`) | `25_token_context.py` |
 | Subagents | delegate a subtask to a child agent | `13_subagents.py` |
 | Cost & interrupt | USD budgets + stop a run mid-flight | `14_cost_and_interrupt.py` |
 | Permissions | dynamic `can_use_tool` + tool allowlist | `15_permissions.py` |

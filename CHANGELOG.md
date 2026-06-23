@@ -6,6 +6,17 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- Token-accurate context (P19) — a `TokenCounter` abstraction
+  (`Callable[[str], int]`) with a dependency-free `HeuristicTokenCounter` /
+  `approx_token_counter` default, transcript counting (`count_tokens`,
+  `count_message_tokens`; text + tool calls + a per-media estimate + per-message
+  overhead), and `FitContextWindow` — a context strategy that trims to a real
+  **token** budget (dropping oldest whole rounds, preserving tool pairing, with
+  `reserve_tokens` headroom) instead of counting rounds/characters. Pass any
+  tokenizer (e.g. `tiktoken`, a provider counter) as the `counter`. See
+  `examples/25_token_context.py`.
+
 ## [0.3.0] - 2026-06-23
 
 ### Added

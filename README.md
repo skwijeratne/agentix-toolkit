@@ -3,7 +3,10 @@
 [![CI](https://github.com/skwijeratne/agentix-toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/skwijeratne/agentix-toolkit/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/agentix-toolkit)](https://pypi.org/project/agentix-toolkit/)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://pypi.org/project/agentix-toolkit/)
+[![Docs](https://img.shields.io/badge/docs-skwijeratne.github.io-teal)](https://skwijeratne.github.io/agentix-toolkit/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
+
+📖 **[Documentation](https://skwijeratne.github.io/agentix-toolkit/)** — getting started, guides, the security model, and the full API reference.
 
 A generic, batteries-included **agent toolkit**. The agent loop, tool-calling,
 guards, persistence, and observability are wiring you *configure* — not

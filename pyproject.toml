@@ -44,6 +44,14 @@ dev = [
     "ruff>=0.6",
     "mypy>=1.11",
 ]
+# Docs site toolchain (mkdocs-material + API reference from docstrings).
+# Build locally with: uv run --group docs mkdocs serve
+docs = [
+    "mkdocs-material>=9.5",
+    "mkdocstrings[python]>=0.26",
+    "mkdocs-gen-files>=0.5",
+    "mkdocs-literate-nav>=0.6",
+]
 
 [project.urls]
 Homepage = "https://github.com/skwijeratne/agentix-toolkit"

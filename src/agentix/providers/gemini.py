@@ -15,6 +15,7 @@ that's a Gemini-protocol limitation, not an agentix one.
 
 from __future__ import annotations
 
+import copy
 from collections.abc import Sequence
 from typing import Any
 
@@ -55,6 +56,17 @@ class GeminiModel:
         self._client = client
         self.model = model
         self.extra = extra
+
+    def with_response_format(self, schema: dict[str, Any]) -> GeminiModel:
+        """Return a copy that enforces JSON output against ``schema`` via Gemini's
+        ``response_mime_type`` / ``response_schema`` (used by `response_model`)."""
+        clone = copy.copy(self)
+        clone.extra = {
+            **self.extra,
+            "response_mime_type": "application/json",
+            "response_schema": schema,
+        }
+        return clone
 
     async def __call__(
         self,

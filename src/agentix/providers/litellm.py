@@ -13,6 +13,7 @@ dedicated adapters (``OpenAIModel``, ``GeminiModel``, ``BedrockModel``,
 
 from __future__ import annotations
 
+import copy
 from collections.abc import Sequence
 from typing import Any
 
@@ -49,6 +50,12 @@ class LiteLLMModel:
         self._client = client
         self.model = model
         self.extra = extra
+
+    def with_response_format(self, schema: dict[str, Any]) -> LiteLLMModel:
+        """Return a copy that requests JSON-schema output (for `response_model`)."""
+        clone = copy.copy(self)
+        clone.extra = {**self.extra, "response_format": oc.response_format(schema)}
+        return clone
 
     async def __call__(
         self,

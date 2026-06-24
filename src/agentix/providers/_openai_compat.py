@@ -25,6 +25,14 @@ from ..pricing import cost_usd
 from ..types import Message, ModelResponse, Role, ToolCall
 
 
+def response_format(schema: dict[str, Any]) -> dict[str, Any]:
+    """OpenAI-style ``response_format`` for provider-enforced JSON-schema output."""
+    return {
+        "type": "json_schema",
+        "json_schema": {"name": "response", "schema": schema, "strict": True},
+    }
+
+
 def _audio_format(media_type: str) -> str:
     fmt = media_type.rsplit("/", 1)[-1]
     return "mp3" if fmt in ("mpeg", "mp3") else fmt

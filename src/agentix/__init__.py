@@ -77,7 +77,7 @@ from .providers import (
     OllamaModel,
     OpenAIModel,
 )
-from .resilience import FallbackModel, RetryModel
+from .resilience import FallbackModel, RetryModel, default_retry_after
 from .sandbox import Command, SandboxPolicy, SubprocessExecutor
 from .serde import message_from_dict, message_to_dict, outcome_from_dict, outcome_to_dict
 from .store import FileStore, MemoryStore, Store
@@ -204,6 +204,7 @@ __all__ = [
     "cost_usd",
     "count_message_tokens",
     "count_tokens",
+    "default_retry_after",
     "evaluate",
     "exact_match",
     "json_output",

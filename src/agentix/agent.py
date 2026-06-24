@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import asyncio
 import inspect
+import json
 from collections.abc import AsyncIterator, Iterable, Mapping, Sequence
 from contextlib import AbstractAsyncContextManager, nullcontext
 from typing import Any
@@ -41,7 +42,7 @@ from .streaming import (
 )
 from .tools import Tool, ToolRegistry
 from .types import AgentOutcome, Message, ModelResponse, PendingApproval, Role, ToolCall
-from .validation import OutputValidator
+from .validation import OutputValidator, json_output, pydantic_output
 
 
 class Agent:
@@ -80,6 +81,7 @@ class Agent:
         context_strategy: ContextStrategy | None = None,
         output_validator: OutputValidator | None = None,
         max_output_retries: int = 1,
+        response_model: Any = None,
         memory: Memory | None = None,
         memory_limit: int = 5,
         remember_exchange: bool = False,
@@ -126,6 +128,26 @@ class Agent:
 
         self.tool_executor = tool_executor
         self.tool_schemas: list[ToolSchema] = list(tool_schemas or [])
+
+        # `response_model` is the one-knob structured-output path. It (a) derives
+        # an output_validator so `outcome.parsed` is the typed/validated value
+        # (with re-prompt-on-failure via max_output_retries), (b) injects the JSON
+        # schema as a system instruction (works for *any* model), and (c) turns on
+        # native provider enforcement when the adapter supports it.
+        self.response_model = response_model
+        self.response_schema: dict[str, Any] | None = None
+        if response_model is not None:
+            if isinstance(response_model, dict):
+                self.response_schema = response_model
+                if self.output_validator is None:
+                    self.output_validator = json_output
+            else:  # a Pydantic model class (duck-typed; agentix never imports it)
+                self.response_schema = response_model.model_json_schema()
+                if self.output_validator is None:
+                    self.output_validator = pydantic_output(response_model)
+            bind = getattr(self.model, "with_response_format", None)
+            if bind is not None:  # native enforcement (output_config / response_format)
+                self.model = bind(self.response_schema)
 
     # ── public entry points ───────────────────────────────────────────────
 
@@ -450,7 +472,10 @@ class Agent:
     ) -> list[Message]:
         # Trust boundary: only the system prompt and the genuine user request
         # are trusted as instructions. Tool output never is.
-        messages = [Message(Role.SYSTEM, self.system_prompt, trusted=True)]
+        system_text = self.system_prompt
+        if self.response_schema is not None:
+            system_text += "\n\n" + _schema_instruction(self.response_schema)
+        messages = [Message(Role.SYSTEM, system_text, trusted=True)]
 
         # Cross-session memory: recall records relevant to this request and
         # inject them as (trusted) system context before the user's turn.
@@ -656,3 +681,12 @@ def _format_memories(records: list[MemoryRecord]) -> str:
     """Render recalled memory records as a system-context block."""
     lines = "\n".join(f"- {r.content}" for r in records)
     return f"Relevant information recalled from memory:\n{lines}"
+
+
+def _schema_instruction(schema: dict[str, Any]) -> str:
+    """A provider-agnostic instruction to emit JSON conforming to ``schema``."""
+    return (
+        "Respond with ONLY a single JSON object that conforms to this JSON "
+        "Schema — no prose, no markdown code fences:\n"
+        f"{json.dumps(schema)}"
+    )

@@ -98,6 +98,7 @@ plugins:
           - guides/memory-and-context.md
           - guides/cost-and-control.md
           - guides/streaming.md
+          - guides/serving.md
           - guides/persistence.md
           - guides/evals.md
           - guides/reliability.md
@@ -118,6 +119,7 @@ nav:
       - Memory & context: guides/memory-and-context.md
       - Cost, budgets & human approval: guides/cost-and-control.md
       - Streaming: guides/streaming.md
+      - Serving over HTTP: guides/serving.md
       - Saving & resuming runs: guides/persistence.md
       - Measuring quality (evals): guides/evals.md
       - Reliability: guides/reliability.md

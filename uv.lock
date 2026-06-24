@@ -42,6 +42,9 @@ openai = [
 otel = [
     { name = "opentelemetry-api" },
 ]
+serving = [
+    { name = "starlette" },
+]
 
 [package.dev-dependencies]
 dev = [
@@ -49,6 +52,7 @@ dev = [
     { name = "pytest" },
     { name = "pytest-asyncio" },
     { name = "ruff" },
+    { name = "starlette" },
 ]
 docs = [
     { name = "mkdocs-gen-files" },
@@ -68,8 +72,9 @@ requires-dist = [
     { name = "ollama", marker = "extra == 'ollama'", specifier = ">=0.3" },
     { name = "openai", marker = "extra == 'openai'", specifier = ">=1.0" },
     { name = "opentelemetry-api", marker = "extra == 'otel'", specifier = ">=1.20" },
+    { name = "starlette", marker = "extra == 'serving'", specifier = ">=0.37" },
 ]
-provides-extras = ["anthropic", "openai", "gemini", "bedrock", "ollama", "litellm", "mcp", "otel"]
+provides-extras = ["anthropic", "openai", "gemini", "bedrock", "ollama", "litellm", "serving", "mcp", "otel"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -77,6 +82,7 @@ dev = [
     { name = "pytest", specifier = ">=8" },
     { name = "pytest-asyncio", specifier = ">=0.24" },
     { name = "ruff", specifier = ">=0.6" },
+    { name = "starlette", specifier = ">=0.37" },
 ]
 docs = [
     { name = "mkdocs-gen-files", specifier = ">=0.5" },

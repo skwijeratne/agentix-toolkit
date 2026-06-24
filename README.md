@@ -55,11 +55,12 @@ outcome = await agent.run("What's the weather in Lisbon?")
   validated `outcome.parsed`, with native provider enforcement), output
   validation + retry, **rate-limit-aware** model retry (honors `Retry-After`) +
   fallback, self-consistency, and LLM-as-judge.
-- **Scale & ops** — streaming, checkpoint/resume, **token-aware** context
-  trimming, fleet backpressure, an **eval harness** (gate CI on quality, with
-  JSONL/CSV dataset loaders), **record/replay cassettes** for deterministic
-  real-model tests, **OpenTelemetry** tracing (one-call `instrument()`), and
-  **prompt versioning** (roll back a regressed prompt).
+- **Scale & ops** — streaming, **serve over HTTP** (SSE/NDJSON for FastAPI),
+  checkpoint/resume, **token-aware** context trimming, fleet backpressure, an
+  **eval harness** (gate CI on quality, with JSONL/CSV dataset loaders),
+  **record/replay cassettes** for deterministic real-model tests, **OpenTelemetry**
+  tracing (one-call `instrument()`), and **prompt versioning** (roll back a
+  regressed prompt).
 
 > Status: **alpha**, under active development. APIs may change before `1.0`.
 
@@ -88,8 +89,8 @@ pip install "agentix-toolkit[anthropic]"
 
 Extras are opt-in and the core has **no required dependencies**. Provider
 adapters: `anthropic`, `openai`, `gemini`, `bedrock`, `ollama`, `litellm`
-(the LiteLLM bridge reaches 100+ providers on its own). Plus `mcp` (MCP client)
-and `otel` (OpenTelemetry tracing).
+(the LiteLLM bridge reaches 100+ providers on its own). Plus `mcp` (MCP client),
+`otel` (OpenTelemetry tracing), and `serving` (FastAPI/SSE helpers).
 
 ### 2. Run an agent with no API key
 
@@ -213,6 +214,7 @@ Each links to a runnable example in [`examples/`](./examples):
 | Guards | tiers, confirmation, PII/injection defense, audit | `07_guards.py` |
 | Persistence | checkpoint a run and `resume()` it | `08_persistence.py` |
 | Streaming | live deltas + tool events | `09_streaming.py` |
+| Serving | stream an agent over HTTP (SSE/NDJSON) with FastAPI | `30_serving_fastapi.py` |
 | Concurrency | `Limiter` + `bounded_gather` for fleets | `10_concurrency.py` |
 | MCP | use any MCP server's tools | `11_mcp.py` |
 | Context | bound the transcript (`TrimRounds`, …) | `12_context.py` |

@@ -24,10 +24,15 @@ def add(a: int, b: int) -> int:
 
 
 def build_math_agent() -> Agent:
+    # cost_usd/tokens_used here stand in for what a real provider would report.
     model = MockModel(
         [
-            ModelResponse(tool_calls=[ToolCall("add", {"a": 20, "b": 22}, id="m1")]),
-            ModelResponse(text="20 + 22 = 42."),
+            ModelResponse(
+                tool_calls=[ToolCall("add", {"a": 20, "b": 22}, id="m1")],
+                cost_usd=0.002,
+                tokens_used=120,
+            ),
+            ModelResponse(text="20 + 22 = 42.", cost_usd=0.003, tokens_used=80),
         ]
     )
     return Agent(model=model, system_prompt="You are a meticulous math expert.", tools=[add])
@@ -59,6 +64,9 @@ def main() -> None:
 
     delegated = next(m for m in outcome.transcript if m.role == Role.TOOL)
     print("subagent returned:", delegated.content)
+
+    # The child's spend rolls up into the parent's totals (P-Tier-C):
+    print(f"total cost (incl. subagent): ${outcome.cost_usd:.4f}, tokens: {outcome.tokens_used}")
 
 
 if __name__ == "__main__":

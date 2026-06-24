@@ -25,13 +25,18 @@ deferred, so importing agentix never requires it.
 
 from __future__ import annotations
 
-from collections.abc import AsyncIterator, Sequence
+import dataclasses
+import inspect
+from collections.abc import AsyncIterator, Awaitable, Callable, Sequence
 from contextlib import asynccontextmanager
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from .events import AgentEvents
 from .model import ModelFn, ToolSchema
 from .types import Message, ModelResponse, ToolCall
+
+if TYPE_CHECKING:
+    from .agent import Agent
 
 
 def _default_tracer() -> Any:
@@ -120,3 +125,44 @@ async def trace_run(name: str = "agentix.run", *, tracer: Any = None) -> AsyncIt
     the_tracer = tracer if tracer is not None else _default_tracer()
     with the_tracer.start_as_current_span(name) as span:
         yield span
+
+
+def instrument(agent: Agent, *, tracer: Any = None) -> Agent:
+    """Wire tracing into an existing agent in one call: wrap its model in
+    :class:`TracingModel` and merge :func:`tracing_events` into its events (any
+    callbacks you already set are preserved and run alongside). Mutates and
+    returns the agent. Still wrap the run in :func:`trace_run` for a root span.
+
+        agent = instrument(Agent(model=m, system_prompt="...", tools=[...]))
+        async with trace_run():
+            await agent.run("...")
+    """
+    if not isinstance(agent.model, TracingModel):
+        agent.model = TracingModel(agent.model, tracer=tracer)
+    agent.events = _merge_events(agent.events, tracing_events(tracer=tracer))
+    return agent
+
+
+def _merge_events(a: AgentEvents, b: AgentEvents) -> AgentEvents:
+    """Combine two AgentEvents so both callbacks fire for each hook."""
+    merged: dict[str, Any] = {}
+    for f in dataclasses.fields(AgentEvents):
+        merged[f.name] = _chain(getattr(a, f.name), getattr(b, f.name))
+    return AgentEvents(**merged)
+
+
+def _chain(
+    ca: Callable[..., Any] | None, cb: Callable[..., Any] | None
+) -> Callable[..., Awaitable[None]] | Callable[..., Any] | None:
+    if ca is None:
+        return cb
+    if cb is None:
+        return ca
+
+    async def combined(*args: Any) -> None:
+        for c in (ca, cb):
+            result = c(*args)
+            if inspect.isawaitable(result):
+                await result
+
+    return combined

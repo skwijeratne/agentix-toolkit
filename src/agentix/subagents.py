@@ -10,8 +10,9 @@ executor treat it like any other; subagents compose with ``Limiter`` for fanout.
                              description="Delegate research questions.")
     lead = Agent(model=m, system_prompt="...", tools=[research])
 
-Note: the child's token/cost accounting lives on the child's own
-``AgentOutcome``; it is not rolled up into the parent's outcome here.
+The child's token/cost spend **rolls up** into the parent run: the tool returns a
+:class:`~agentix.types.ToolResult` carrying the child's ``cost_usd`` /
+``tokens_used``, which the loop adds to the parent's ``AgentOutcome`` totals.
 """
 
 from __future__ import annotations
@@ -19,6 +20,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from .tools import Tool
+from .types import ToolResult
 
 if TYPE_CHECKING:
     from .agent import Agent
@@ -37,10 +39,16 @@ def subagent_tool(
     ``"task"``) — the instruction to delegate — and returns the child's answer.
     """
 
-    async def _delegate(**kwargs: Any) -> str:
+    async def _delegate(**kwargs: Any) -> ToolResult:
         task = kwargs[input_name]
         outcome = await agent.run(str(task))
-        return outcome.answer or ""
+        # Return a ToolResult so the child's spend rolls up into the parent.
+        return ToolResult(
+            name=name,
+            content=outcome.answer or "",
+            cost_usd=outcome.cost_usd,
+            tokens_used=outcome.tokens_used,
+        )
 
     return Tool(
         _delegate,

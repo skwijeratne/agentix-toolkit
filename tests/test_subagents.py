@@ -37,7 +37,7 @@ def test_subagent_tool_builds_a_tool() -> None:
 async def test_subagent_runs_and_returns_answer() -> None:
     t = subagent_tool(_math_subagent(), name="math", description="Delegate math.")
     result = await t.func(task="what is 20 + 22?")
-    assert result == "The result is 42."
+    assert result.content == "The result is 42."  # now a ToolResult (carries spend)
 
 
 async def test_parent_delegates_to_subagent() -> None:
@@ -63,4 +63,4 @@ async def test_subagent_custom_input_name() -> None:
         _math_subagent(), name="m", description="d", input_name="question"
     )
     assert t.parameters["required"] == ["question"]
-    assert await t.func(question="20+22") == "The result is 42."
+    assert (await t.func(question="20+22")).content == "The result is 42."

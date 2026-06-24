@@ -23,7 +23,7 @@ uv run python examples/01_hello_agent.py
 | `10_concurrency.py` | Running many agents safely: `bounded_gather` + a shared `Limiter`. | — |
 | `11_mcp.py` | Connect to an MCP server and use its tools in an agent. | `agentix[mcp,anthropic]` + a server + `ANTHROPIC_API_KEY` |
 | `12_context.py` | Bound the transcript with `TrimRounds` / `TruncateToolOutputs`. | — |
-| `13_subagents.py` | Delegate a subtask to a child agent (`subagent_tool`). | — |
+| `13_subagents.py` | Delegate a subtask to a child agent (`subagent_tool`); the child's cost/tokens roll up into the parent. | — |
 | `14_cost_and_interrupt.py` | USD cost tracking, `max_budget_usd`, and `Interrupt`. | — |
 | `15_permissions.py` | Dynamic permissions: `CallbackGuard` (can_use_tool) + `ToolAllowlistGuard`. | — |
 | `16_reliability.py` | Output validation + retry; resilient models (`RetryModel`/`FallbackModel`). | — |
@@ -39,6 +39,7 @@ uv run python examples/01_hello_agent.py
 | `26_memory.py` | Cross-session memory: a `Memory` (`InMemoryMemory`) recalled into context across two sessions, persisted via a `FileStore`. | — |
 | `27_structured_output.py` | `Agent(response_model=…)`: validated `outcome.parsed`, schema-prompt + native provider enforcement, retry on failure. | — |
 | `28_rate_limit.py` | `RetryModel` honoring `Retry-After` (rate-limit-aware) instead of blind backoff, with an `on_retry` hook. | — |
+| `29_cassettes.py` | `CassetteModel`: record model responses to a file, then replay them deterministically (no network). | — |
 
 To run the Anthropic example:
 

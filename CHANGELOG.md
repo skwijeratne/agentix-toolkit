@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-06-24
+
 ### Added
 - Discoverability — the docs site now publishes [`llms.txt`](https://llmstxt.org/)
   and `llms-full.txt` (a curated and a full-text, LLM-friendly index of the docs)
@@ -186,7 +188,8 @@ Initial release.
   `cost_usd`; `AgentPolicy.max_budget_usd` aborts a run over budget.
 - `Interrupt` stops a run or stream at the next safe boundary.
 
-[Unreleased]: https://github.com/skwijeratne/agentix-toolkit/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/skwijeratne/agentix-toolkit/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/skwijeratne/agentix-toolkit/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/skwijeratne/agentix-toolkit/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/skwijeratne/agentix-toolkit/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/skwijeratne/agentix-toolkit/compare/v0.2.0...v0.2.1

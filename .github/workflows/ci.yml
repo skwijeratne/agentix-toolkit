@@ -38,3 +38,18 @@ jobs:
         run: uv run ruff check src tests
       - name: mypy (strict)
         run: uv run mypy
+
+  docs:
+    name: docs build
+    runs-on: ubuntu-latest
+    env:
+      DISABLE_MKDOCS_2_WARNING: "true"
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+      - run: uv sync --group docs
+      # --strict fails the build on broken links or missing pages.
+      - run: uv run mkdocs build --strict

@@ -6,6 +6,14 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- Documentation site (P17) — a Material for MkDocs site with a beginner-friendly
+  getting-started, ~12 task guides (each linking a runnable example), a plain-
+  language **security model** writeup, and a full **API reference** generated from
+  the docstrings (mkdocstrings). Builds are gated in CI (`mkdocs build --strict`)
+  and auto-deploy to GitHub Pages. Adds a `docs` dependency group; no library code
+  changes.
+
 ## [0.4.0] - 2026-06-24
 
 ### Added

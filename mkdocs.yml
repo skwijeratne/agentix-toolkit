@@ -1,0 +1,97 @@
+site_name: agentix
+site_description: A friendly, batteries-included toolkit for building AI agents in Python.
+site_url: https://skwijeratne.github.io/agentix-toolkit/
+repo_url: https://github.com/skwijeratne/agentix-toolkit
+repo_name: skwijeratne/agentix-toolkit
+edit_uri: edit/main/docs/
+copyright: MIT licensed
+
+theme:
+  name: material
+  icon:
+    repo: fontawesome/brands/github
+  features:
+    - navigation.sections
+    - navigation.top
+    - navigation.tracking
+    - navigation.indexes
+    - content.code.copy
+    - content.code.annotate
+    - toc.follow
+    - search.suggest
+    - search.highlight
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.inlinehilite
+  - pymdownx.snippets:
+      base_path: ["."]
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+plugins:
+  - search
+  - gen-files:
+      scripts:
+        - docs/gen_ref_pages.py
+  - literate-nav:
+      nav_file: SUMMARY.md
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: ["src"]
+          options:
+            docstring_style: google
+            show_root_heading: true
+            show_root_full_path: false
+            show_source: false
+            show_signature_annotations: true
+            separate_signature: true
+            members_order: source
+            filters: ["!^_"]
+            merge_init_into_class: true
+
+nav:
+  - Home: index.md
+  - Getting started: getting-started.md
+  - Guides:
+      - Tools: guides/tools.md
+      - Models & providers: guides/providers.md
+      - Structured output: guides/structured-output.md
+      - Memory & context: guides/memory-and-context.md
+      - Cost, budgets & human approval: guides/cost-and-control.md
+      - Streaming: guides/streaming.md
+      - Saving & resuming runs: guides/persistence.md
+      - Measuring quality (evals): guides/evals.md
+      - Reliability: guides/reliability.md
+      - Observability: guides/observability.md
+      - Running many agents: guides/concurrency.md
+      - Images, PDFs & audio: guides/multimodal.md
+      - Prompt versioning: guides/prompts.md
+  - Security model: security.md
+  - API reference: reference/
+  - Changelog: changelog.md

@@ -40,6 +40,7 @@ uv run python examples/01_hello_agent.py
 | `27_structured_output.py` | `Agent(response_model=…)`: validated `outcome.parsed`, schema-prompt + native provider enforcement, retry on failure. | — |
 | `28_rate_limit.py` | `RetryModel` honoring `Retry-After` (rate-limit-aware) instead of blind backoff, with an `on_retry` hook. | — |
 | `29_cassettes.py` | `CassetteModel`: record model responses to a file, then replay them deterministically (no network). | — |
+| `30_serving_fastapi.py` | Serve an agent over HTTP: streaming `sse_response` + a suspend/resume approval flow, with a tiny browser client. | `agentix[serving]` + `fastapi` + `uvicorn` |
 
 To run the Anthropic example:
 

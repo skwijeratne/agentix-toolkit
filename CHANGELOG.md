@@ -6,6 +6,16 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- Serving helpers (P23) — `agentix.serving` turns an `Agent` into a streaming
+  HTTP endpoint. Dependency-free serializers map the `stream()` events to
+  Server-Sent Events / NDJSON (`event_to_dict`, `sse_events`, `ndjson_events`,
+  `outcome_to_payload`), and a thin lazy-imported FastAPI/Starlette adapter
+  (`sse_response` / `ndjson_response`, extra `agentix[serving]`) wraps them in a
+  `StreamingResponse`. `outcome_to_payload` serializes a run (including a
+  `suspended` run's `pending` approvals) for a request/response + `/approve`
+  flow. See `examples/30_serving_fastapi.py`.
+
 ## [0.4.1] - 2026-06-24
 
 ### Added

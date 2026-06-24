@@ -19,9 +19,13 @@ snapshots) make eval runs reproducible.
 
 from __future__ import annotations
 
+import csv
 import inspect
+import json
 from collections.abc import Awaitable, Callable, Sequence
 from dataclasses import dataclass, field
+from os import PathLike
+from pathlib import Path
 from typing import Any
 
 from .agent import Agent
@@ -39,6 +43,7 @@ __all__ = [
     "evaluate",
     "exact_match",
     "llm_judge",
+    "load_cases",
     "predicate",
     "regex_match",
 ]
@@ -67,6 +72,48 @@ class Case:
     scorer: Scorer | None = None
     id: str | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
+
+
+def _case_from_dict(d: dict[str, Any]) -> Case:
+    d = dict(d)
+    if "input" not in d:
+        raise ValueError("each case needs an 'input' field")
+    input_ = d.pop("input")
+    expected = d.pop("expected", None)
+    id_ = d.pop("id", None)
+    metadata = dict(d.pop("metadata", None) or {})
+    metadata.update(d)  # any leftover keys / CSV columns become metadata
+    return Case(input=str(input_), expected=expected, id=id_, metadata=metadata)
+
+
+def load_cases(path: str | PathLike[str]) -> list[Case]:
+    """Load eval :class:`Case` s from a dataset file, by extension:
+
+    * ``.jsonl`` — one JSON object per line,
+    * ``.json``  — a JSON array of objects,
+    * ``.csv``   — a header row with at least an ``input`` column.
+
+    Recognized fields are ``input`` (required), ``expected``, ``id``, and
+    ``metadata``; any other keys/columns are folded into ``metadata``. Per-case
+    scorers aren't loadable from data — set them in code after loading.
+    """
+    p = Path(path)
+    suffix = p.suffix.lower()
+    if suffix == ".jsonl":
+        return [
+            _case_from_dict(json.loads(line))
+            for line in p.read_text().splitlines()
+            if line.strip()
+        ]
+    if suffix == ".json":
+        data = json.loads(p.read_text())
+        if not isinstance(data, list):
+            raise ValueError("a .json case file must contain a JSON array of objects")
+        return [_case_from_dict(d) for d in data]
+    if suffix == ".csv":
+        with p.open(newline="") as f:
+            return [_case_from_dict(row) for row in csv.DictReader(f)]
+    raise ValueError(f"unsupported case file type: {suffix!r} (use .jsonl/.json/.csv)")
 
 
 @dataclass

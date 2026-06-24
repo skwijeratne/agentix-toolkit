@@ -38,8 +38,8 @@ outcome = await agent.run("What's the weather in Lisbon?")
   `can_use_tool` callbacks, PII/injection guards, human confirmation, audit events,
   and a **sandboxed executor** that runs untrusted / model-generated code in an
   isolated subprocess (no network by default, plus CPU/memory/fs limits).
-- **Cost & control** — token **and USD** cost tracking, step/token/USD budgets,
-  cooperative `Interrupt`.
+- **Cost & control** — token **and USD** cost tracking (subagent spend **rolls
+  up** into the parent run), step/token/USD budgets, cooperative `Interrupt`.
 - **Human-in-the-loop, durably** — `suspend_on_confirm` pauses at a confirmation,
   persists, and returns `status="suspended"`; `resume(run_id, decisions=…)`
   approves/denies on a later request (web/serverless-friendly), not just an
@@ -52,8 +52,10 @@ outcome = await agent.run("What's the weather in Lisbon?")
   validation + retry, **rate-limit-aware** model retry (honors `Retry-After`) +
   fallback, self-consistency, and LLM-as-judge.
 - **Scale & ops** — streaming, checkpoint/resume, **token-aware** context
-  trimming, fleet backpressure, an **eval harness** (gate CI on quality), **OpenTelemetry**
-  tracing, and **prompt versioning** (roll back a regressed prompt).
+  trimming, fleet backpressure, an **eval harness** (gate CI on quality, with
+  JSONL/CSV dataset loaders), **record/replay cassettes** for deterministic
+  real-model tests, **OpenTelemetry** tracing (one-call `instrument()`), and
+  **prompt versioning** (roll back a regressed prompt).
 
 > Status: **alpha**, under active development. APIs may change before `1.0`.
 
@@ -211,21 +213,22 @@ Each links to a runnable example in [`examples/`](./examples):
 | MCP | use any MCP server's tools | `11_mcp.py` |
 | Context | bound the transcript (`TrimRounds`, …) | `12_context.py` |
 | Token context | trim to a real **token** budget (`FitContextWindow`) | `25_token_context.py` |
-| Subagents | delegate a subtask to a child agent | `13_subagents.py` |
+| Subagents | delegate a subtask to a child agent (cost rolls up) | `13_subagents.py` |
 | Cost & interrupt | USD budgets + stop a run mid-flight | `14_cost_and_interrupt.py` |
 | Permissions | dynamic `can_use_tool` + tool allowlist | `15_permissions.py` |
 | Reliability | output validation + retry, fallback/retry models | `16_reliability.py` |
 | Structured output | `response_model=` → validated `outcome.parsed` + native enforcement | `27_structured_output.py` |
 | Rate limits | `RetryModel` honors `Retry-After`, not blind backoff | `28_rate_limit.py` |
-| Eval | score golden cases, gate CI on pass rate | `17_eval.py` |
+| Eval | score golden cases (JSONL/CSV loaders), gate CI on pass rate | `17_eval.py` |
 | Verify | self-consistency + LLM-as-judge | `18_verification.py` |
-| Tracing | OpenTelemetry model/tool/run spans | `19_tracing.py` |
+| Tracing | OpenTelemetry spans; one-call `instrument(agent)` | `19_tracing.py` |
 | Prompts | versioning + rollback; typed Anthropic reasoning knobs | `20_prompts.py` |
 | Providers | OpenAI / Gemini / Bedrock / Ollama / LiteLLM, one-line swap | `21_providers.py` |
 | Multimodal | text + image / PDF / audio parts; per-adapter translation | `22_multimodal.py` |
 | Sandbox | run untrusted code in an isolated subprocess (no net, rlimits) | `23_sandbox.py` |
 | Suspend/resume | pause for human approval, persist, resume on a later request | `24_suspend_resume.py` |
 | Memory | cross-session recall via a pluggable `Memory` interface | `26_memory.py` |
+| Cassettes | record/replay model responses for deterministic tests | `29_cassettes.py` |
 
 ---
 

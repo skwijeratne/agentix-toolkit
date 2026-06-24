@@ -99,4 +99,15 @@ class LocalToolExecutor:
         except Exception as exc:  # noqa: BLE001 — surface as data, don't crash the loop
             return ToolResult(call.name, f"ERROR running tool: {exc}", call.id, ok=False)
 
+        # A tool may return a ToolResult directly to report cost/tokens/ok
+        # (e.g. a subagent); otherwise its return value becomes the content.
+        if isinstance(value, ToolResult):
+            return ToolResult(
+                call.name,
+                value.content,
+                call.id,
+                ok=value.ok,
+                cost_usd=value.cost_usd,
+                tokens_used=value.tokens_used,
+            )
         return ToolResult(call.name, str(value), call.id, ok=True)

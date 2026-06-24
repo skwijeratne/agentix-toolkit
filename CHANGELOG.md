@@ -7,6 +7,16 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- Tier C polish (one PR): **eval dataset loaders** — `load_cases(path)` reads
+  `Case`s from `.jsonl` / `.json` / `.csv` (extra keys/columns fold into
+  `metadata`); **record/replay cassettes** — `CassetteModel` records a real
+  model's responses to a JSON file and replays them deterministically
+  (`mode="auto"`), for fast offline tests; **subagent cost roll-up** — a tool may
+  return a `ToolResult` carrying `cost_usd`/`tokens_used`, and `subagent_tool`
+  now does, so a child run's spend is added to the parent's `AgentOutcome` totals;
+  **`instrument(agent)`** — one call wraps the model in `TracingModel` and merges
+  `tracing_events` into the agent's events (existing callbacks preserved). See
+  `examples/29_cassettes.py` and `examples/13_subagents.py`.
 - First-class structured output (P21) — `Agent(response_model=…)` (a Pydantic
   model class or a raw JSON-Schema dict) wires the whole path in one knob: an
   output validator so `outcome.parsed` is typed/validated (re-prompting on

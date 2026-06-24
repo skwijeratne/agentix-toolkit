@@ -63,12 +63,18 @@ class ToolCall:
 
 @dataclass
 class ToolResult:
-    """The outcome of executing a single :class:`ToolCall`."""
+    """The outcome of executing a single :class:`ToolCall`.
+
+    A tool may report ``cost_usd`` / ``tokens_used`` (e.g. a subagent rolling up
+    its child run's spend) — the loop adds these into the parent run's totals.
+    """
 
     name: str
     content: str
     call_id: str | None = None
     ok: bool = True
+    cost_usd: float = 0.0
+    tokens_used: int = 0
 
 
 @dataclass

@@ -199,7 +199,10 @@ class Agent:
         if self._has_unfinished_tool_turn(messages):
             calls: list[ToolCall] = list(messages[-1].meta.get("tool_calls", []))
             for call in calls:
-                messages.append(await self._handle_call(call, approvals=decisions))
+                msg = await self._handle_call(call, approvals=decisions)
+                messages.append(msg)
+                tokens_used += _tool_msg_tokens(msg)
+                cost_usd += _tool_msg_cost(msg)
             await self._checkpoint(effective, run_id, steps, tokens_used, cost_usd, messages)
 
         return await self._loop(
@@ -311,6 +314,8 @@ class Agent:
                 yield ToolStarted(call)
                 msg = await self._handle_call(call)
                 messages.append(msg)
+                tokens_used += _tool_msg_tokens(msg)
+                cost_usd += _tool_msg_cost(msg)
                 yield ToolFinished(msg)
             await self._checkpoint(self.store, run_id, steps, tokens_used, cost_usd, messages)
 
@@ -406,7 +411,10 @@ class Agent:
                     return await self._suspend(pending, steps, tokens_used, cost_usd, messages)
 
             for call in response.tool_calls:
-                messages.append(await self._handle_call(call))
+                msg = await self._handle_call(call)
+                messages.append(msg)
+                tokens_used += _tool_msg_tokens(msg)
+                cost_usd += _tool_msg_cost(msg)
 
             # Checkpoint after each completed step so a crash mid-next-step can resume.
             await self._checkpoint(store, run_id, steps, tokens_used, cost_usd, messages)
@@ -574,7 +582,10 @@ class Agent:
         # GUARD: sanitize output before it re-enters context (injection scan,
         # untrusted-data wrapping). Tool output is data, never instructions.
         content = await self.guards.after_output(call, result.content, ctx)
-        msg = self._tool_msg(call, content, ok=result.ok)
+        msg = self._tool_msg(
+            call, content, ok=result.ok,
+            cost_usd=result.cost_usd, tokens_used=result.tokens_used,
+        )
         await self.events.emit("on_tool_result", call, msg)
         return msg
 
@@ -642,13 +653,25 @@ class Agent:
     # ── helpers ───────────────────────────────────────────────────────────
 
     @staticmethod
-    def _tool_msg(call: ToolCall, content: str, *, ok: bool) -> Message:
+    def _tool_msg(
+        call: ToolCall,
+        content: str,
+        *,
+        ok: bool,
+        cost_usd: float = 0.0,
+        tokens_used: int = 0,
+    ) -> Message:
         return Message(
             Role.TOOL,
             content,
             trusted=False,
             name=call.name,
-            meta={"call_id": call.id, "ok": ok},
+            meta={
+                "call_id": call.id,
+                "ok": ok,
+                "cost_usd": cost_usd,
+                "tokens_used": tokens_used,
+            },
         )
 
     @staticmethod
@@ -681,6 +704,14 @@ def _format_memories(records: list[MemoryRecord]) -> str:
     """Render recalled memory records as a system-context block."""
     lines = "\n".join(f"- {r.content}" for r in records)
     return f"Relevant information recalled from memory:\n{lines}"
+
+
+def _tool_msg_cost(msg: Message) -> float:
+    return float(msg.meta.get("cost_usd", 0.0) or 0.0)
+
+
+def _tool_msg_tokens(msg: Message) -> int:
+    return int(msg.meta.get("tokens_used", 0) or 0)
 
 
 def _schema_instruction(schema: dict[str, Any]) -> str:

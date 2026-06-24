@@ -7,6 +7,7 @@ rewriting them for every project. The core is provider-agnostic and async-first.
 from __future__ import annotations
 
 from .agent import Agent
+from .cassette import CassetteModel
 from .concurrency import Limiter, bounded_gather
 from .confirm import ConfirmFn, always_approve, always_deny, console_confirm
 from .consistency import SelfConsistencyModel
@@ -40,6 +41,7 @@ from .evals import (
     evaluate,
     exact_match,
     llm_judge,
+    load_cases,
     predicate,
     regex_match,
 )
@@ -91,7 +93,7 @@ from .streaming import (
 )
 from .subagents import subagent_tool
 from .tools import Tool, ToolRegistry, tool
-from .tracing import TracingModel, trace_run, tracing_events
+from .tracing import TracingModel, instrument, trace_run, tracing_events
 from .types import (
     AgentOutcome,
     Message,
@@ -125,6 +127,7 @@ __all__ = [
     "CallbackGuard",
     "Case",
     "CaseResult",
+    "CassetteModel",
     "Command",
     "ConfirmFn",
     "ContentPart",
@@ -207,8 +210,10 @@ __all__ = [
     "default_retry_after",
     "evaluate",
     "exact_match",
+    "instrument",
     "json_output",
     "llm_judge",
+    "load_cases",
     "message_from_dict",
     "message_to_dict",
     "outcome_from_dict",

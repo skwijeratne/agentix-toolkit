@@ -7,6 +7,19 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- First-class structured output (P21) — `Agent(response_model=…)` (a Pydantic
+  model class or a raw JSON-Schema dict) wires the whole path in one knob: an
+  output validator so `outcome.parsed` is typed/validated (re-prompting on
+  failure), a schema instruction injected into the system context (any model
+  conforms), and **native provider enforcement** when the adapter supports it via
+  a new `with_response_format(schema)` (Anthropic `output_config.format`, OpenAI/
+  LiteLLM `response_format`, Gemini `response_schema`, Ollama `format`; composes
+  through `RetryModel`/`FallbackModel`). See `examples/27_structured_output.py`.
+- Rate-limit-aware retries (P22) — `RetryModel` now honors a provider's
+  `Retry-After` (via `retry_after=`, default `default_retry_after` reading the
+  error attribute or response header) instead of blind exponential backoff,
+  capped by `max_sleep`, with an `on_retry` hook to surface waits. Falls back to
+  exponential backoff when no hint is present. See `examples/28_rate_limit.py`.
 - Pluggable memory (P20) — a `Memory` protocol for cross-session recall
   (`recall(query)` / `write(content)`); `MemoryRecord`; and a dependency-free
   `InMemoryMemory` default with keyword-overlap recall (+ `dump`/`load` for

@@ -37,6 +37,8 @@ uv run python examples/01_hello_agent.py
 | `24_suspend_resume.py` | Durable human-in-the-loop: `suspend_on_confirm` pauses for approval, persists, and `resume(decisions=…)` continues (even in a new process). | — |
 | `25_token_context.py` | Token-accurate context: `count_tokens` + `FitContextWindow` trims the transcript to a real token budget (pluggable counter). | — |
 | `26_memory.py` | Cross-session memory: a `Memory` (`InMemoryMemory`) recalled into context across two sessions, persisted via a `FileStore`. | — |
+| `27_structured_output.py` | `Agent(response_model=…)`: validated `outcome.parsed`, schema-prompt + native provider enforcement, retry on failure. | — |
+| `28_rate_limit.py` | `RetryModel` honoring `Retry-After` (rate-limit-aware) instead of blind backoff, with an `on_retry` hook. | — |
 
 To run the Anthropic example:
 

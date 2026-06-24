@@ -17,6 +17,7 @@ that surface (or the ``openai`` SDK you already use), point
 
 from __future__ import annotations
 
+import copy
 from collections.abc import Sequence
 from typing import Any
 
@@ -56,6 +57,13 @@ class OllamaModel:
         self._client = client
         self.model = model
         self.extra = extra
+
+    def with_response_format(self, schema: dict[str, Any]) -> OllamaModel:
+        """Return a copy that constrains output to ``schema`` via Ollama's
+        ``format`` (used by ``Agent(response_model=…)``)."""
+        clone = copy.copy(self)
+        clone.extra = {**self.extra, "format": schema}
+        return clone
 
     async def __call__(
         self,

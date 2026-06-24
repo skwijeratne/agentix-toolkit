@@ -47,8 +47,10 @@ outcome = await agent.run("What's the weather in Lisbon?")
 - **Cross-session memory** — a pluggable `Memory` interface: recalled records are
   injected as context before each run (your semantic/keyword backend; a
   dependency-free default is included), with `remember_exchange` to persist turns.
-- **Reliability** — output **validation + retry** (`outcome.parsed`), model
-  **fallback/retry**, self-consistency, and LLM-as-judge.
+- **Reliability** — first-class **structured output** (`response_model=` → a
+  validated `outcome.parsed`, with native provider enforcement), output
+  validation + retry, **rate-limit-aware** model retry (honors `Retry-After`) +
+  fallback, self-consistency, and LLM-as-judge.
 - **Scale & ops** — streaming, checkpoint/resume, **token-aware** context
   trimming, fleet backpressure, an **eval harness** (gate CI on quality), **OpenTelemetry**
   tracing, and **prompt versioning** (roll back a regressed prompt).
@@ -213,6 +215,8 @@ Each links to a runnable example in [`examples/`](./examples):
 | Cost & interrupt | USD budgets + stop a run mid-flight | `14_cost_and_interrupt.py` |
 | Permissions | dynamic `can_use_tool` + tool allowlist | `15_permissions.py` |
 | Reliability | output validation + retry, fallback/retry models | `16_reliability.py` |
+| Structured output | `response_model=` → validated `outcome.parsed` + native enforcement | `27_structured_output.py` |
+| Rate limits | `RetryModel` honors `Retry-After`, not blind backoff | `28_rate_limit.py` |
 | Eval | score golden cases, gate CI on pass rate | `17_eval.py` |
 | Verify | self-consistency + LLM-as-judge | `18_verification.py` |
 | Tracing | OpenTelemetry model/tool/run spans | `19_tracing.py` |

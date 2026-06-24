@@ -12,6 +12,7 @@ Ollama specifically see :class:`~agentix.providers.ollama.OllamaModel`.
 
 from __future__ import annotations
 
+import copy
 from collections.abc import AsyncIterator, Sequence
 from typing import Any
 
@@ -63,6 +64,13 @@ class OpenAIModel:
         self._client = client
         self.model = model
         self.extra = extra
+
+    def with_response_format(self, schema: dict[str, Any]) -> OpenAIModel:
+        """Return a copy that enforces JSON-schema output (used by
+        ``Agent(response_model=…)``)."""
+        clone = copy.copy(self)
+        clone.extra = {**self.extra, "response_format": oc.response_format(schema)}
+        return clone
 
     def _build_kwargs(
         self, messages: Sequence[Message], tools: Sequence[ToolSchema]

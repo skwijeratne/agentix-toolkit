@@ -19,6 +19,7 @@ Notes on the translation:
 
 from __future__ import annotations
 
+import copy
 from collections.abc import AsyncIterator, Sequence
 from typing import Any, Literal
 
@@ -122,6 +123,15 @@ class AnthropicModel:
         self.effort = effort
         self.task_budget = task_budget
         self.extra = extra
+
+    def with_response_format(self, schema: dict[str, Any]) -> AnthropicModel:
+        """Return a copy that enforces JSON-schema output via
+        ``output_config.format`` (used by ``Agent(response_model=…)``)."""
+        clone = copy.copy(self)
+        output_config = dict(self.extra.get("output_config") or {})
+        output_config["format"] = {"type": "json_schema", "schema": schema}
+        clone.extra = {**self.extra, "output_config": output_config}
+        return clone
 
     def _build_kwargs(
         self, messages: Sequence[Message], tools: Sequence[ToolSchema]

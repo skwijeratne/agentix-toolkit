@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-06-24
+
 ### Added
 - Serving helpers (P23) — `agentix.serving` turns an `Agent` into a streaming
   HTTP endpoint. Dependency-free serializers map the `stream()` events to
@@ -15,6 +17,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `StreamingResponse`. `outcome_to_payload` serializes a run (including a
   `suspended` run's `pending` approvals) for a request/response + `/approve`
   flow. See `examples/30_serving_fastapi.py`.
+
+### Changed
+- Friendlier, plain-language package summary and README intro (consistent with
+  the docs voice). No API changes.
 
 ## [0.4.1] - 2026-06-24
 
@@ -198,7 +204,8 @@ Initial release.
   `cost_usd`; `AgentPolicy.max_budget_usd` aborts a run over budget.
 - `Interrupt` stops a run or stream at the next safe boundary.
 
-[Unreleased]: https://github.com/skwijeratne/agentix-toolkit/compare/v0.4.1...HEAD
+[Unreleased]: https://github.com/skwijeratne/agentix-toolkit/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/skwijeratne/agentix-toolkit/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/skwijeratne/agentix-toolkit/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/skwijeratne/agentix-toolkit/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/skwijeratne/agentix-toolkit/compare/v0.2.1...v0.3.0

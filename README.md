@@ -9,13 +9,15 @@
 📖 **[Documentation](https://skwijeratne.github.io/agentix-toolkit/)** — getting started, guides, the security model, and the full API reference.
 Using an AI coding assistant? It can read [`/llms.txt`](https://skwijeratne.github.io/agentix-toolkit/llms.txt) (or the full‑text [`/llms-full.txt`](https://skwijeratne.github.io/agentix-toolkit/llms-full.txt)) for a clean, LLM-friendly index of the docs.
 
-A generic, batteries-included **agent toolkit**. The agent loop, tool-calling,
-guards, persistence, and observability are wiring you *configure* — not
-boilerplate you rewrite for every project.
+A friendly, batteries-included **toolkit for building AI agents in Python**.
 
-Everyone re-codes the same agentic loop, tool dispatch, and safety checks.
-`agentix` keeps the loop thin and shared and makes everything load-bearing — the
-model, the tools, the guards — injectable and declarative.
+An *agent* is an AI model that uses tools to get a job done — it answers, calls a
+tool you gave it, reads the result, and keeps going until it's finished. Building
+that means writing the same loop every time: ask the model, run the tool it asked
+for, feed the result back, repeat. **agentix gives you that loop.** You bring
+three things and plug them in — a **model**, the **tools** it can use, and
+optional **guards** (safety checks) — and the rest (streaming, retries, cost
+tracking, persistence) is handled and easy to switch on.
 
 ```python
 from agentix import Agent, tool

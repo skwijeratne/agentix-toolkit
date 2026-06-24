@@ -1,0 +1,32 @@
+# agentix
+
+> A friendly, batteries-included toolkit for building AI agents in Python.
+
+agentix is a friendly, batteries-included toolkit for building AI agents in Python. It gives you a ready-made agent loop into which you plug a model, tools, and optional safety guards. It is provider-agnostic (Anthropic, OpenAI, Gemini, Bedrock, Ollama, and 100+ via LiteLLM) and includes streaming, persistence, cross-session memory, token-aware context trimming, structured output, an eval harness, tracing, and a security model that separates trusted instructions from untrusted tool output. Import name: agentix. PyPI: agentix-toolkit.
+
+## Introduction
+
+- [Home](https://skwijeratne.github.io/agentix-toolkit/index.md)
+- [Getting started](https://skwijeratne.github.io/agentix-toolkit/getting-started/index.md)
+
+## Guides
+
+- [Tools](https://skwijeratne.github.io/agentix-toolkit/guides/tools/index.md)
+- [Models & providers](https://skwijeratne.github.io/agentix-toolkit/guides/providers/index.md)
+- [Structured output](https://skwijeratne.github.io/agentix-toolkit/guides/structured-output/index.md)
+- [Memory & context](https://skwijeratne.github.io/agentix-toolkit/guides/memory-and-context/index.md)
+- [Cost, budgets & human approval](https://skwijeratne.github.io/agentix-toolkit/guides/cost-and-control/index.md)
+- [Streaming](https://skwijeratne.github.io/agentix-toolkit/guides/streaming/index.md)
+- [Serving over HTTP](https://skwijeratne.github.io/agentix-toolkit/guides/serving/index.md)
+- [Saving & resuming runs](https://skwijeratne.github.io/agentix-toolkit/guides/persistence/index.md)
+- [Measuring quality (evals)](https://skwijeratne.github.io/agentix-toolkit/guides/evals/index.md)
+- [Reliability](https://skwijeratne.github.io/agentix-toolkit/guides/reliability/index.md)
+- [Observability](https://skwijeratne.github.io/agentix-toolkit/guides/observability/index.md)
+- [Running many agents](https://skwijeratne.github.io/agentix-toolkit/guides/concurrency/index.md)
+- [Images, PDFs & audio](https://skwijeratne.github.io/agentix-toolkit/guides/multimodal/index.md)
+- [Prompt versioning](https://skwijeratne.github.io/agentix-toolkit/guides/prompts/index.md)
+
+## Security
+
+- [Security model](https://skwijeratne.github.io/agentix-toolkit/security/index.md)
+

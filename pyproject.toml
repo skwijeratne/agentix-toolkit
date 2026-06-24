@@ -76,8 +76,11 @@ docs = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/skwijeratne/agentix-toolkit"
+Homepage = "https://skwijeratne.github.io/agentix-toolkit/"
+Documentation = "https://skwijeratne.github.io/agentix-toolkit/"
 Repository = "https://github.com/skwijeratne/agentix-toolkit"
+Changelog = "https://github.com/skwijeratne/agentix-toolkit/blob/main/CHANGELOG.md"
+Issues = "https://github.com/skwijeratne/agentix-toolkit/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/agentix"]

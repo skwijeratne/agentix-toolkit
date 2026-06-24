@@ -74,6 +74,39 @@ plugins:
             members_order: source
             filters: ["!^_"]
             merge_init_into_class: true
+  # Publishes /llms.txt (a curated, LLM-friendly map of the docs) and
+  # /llms-full.txt (the full text) so AI coding agents can read the docs cleanly.
+  - llmstxt:
+      full_output: llms-full.txt
+      markdown_description: >-
+        agentix is a friendly, batteries-included toolkit for building AI agents
+        in Python. It gives you a ready-made agent loop into which you plug a
+        model, tools, and optional safety guards. It is provider-agnostic
+        (Anthropic, OpenAI, Gemini, Bedrock, Ollama, and 100+ via LiteLLM) and
+        includes streaming, persistence, cross-session memory, token-aware
+        context trimming, structured output, an eval harness, tracing, and a
+        security model that separates trusted instructions from untrusted tool
+        output. Import name: agentix. PyPI: agentix-toolkit.
+      sections:
+        Introduction:
+          - index.md
+          - getting-started.md
+        Guides:
+          - guides/tools.md
+          - guides/providers.md
+          - guides/structured-output.md
+          - guides/memory-and-context.md
+          - guides/cost-and-control.md
+          - guides/streaming.md
+          - guides/persistence.md
+          - guides/evals.md
+          - guides/reliability.md
+          - guides/observability.md
+          - guides/concurrency.md
+          - guides/multimodal.md
+          - guides/prompts.md
+        Security:
+          - security.md
 
 nav:
   - Home: index.md

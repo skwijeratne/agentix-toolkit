@@ -10,16 +10,37 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
 authors = [{ name = "Sanjaya Wijeratne", email = "skwijeratne@gmail.com" }]
-keywords = ["agent", "llm", "agents", "tools", "ai", "toolkit", "guardrails"]
+keywords = [
+    "agent",
+    "agents",
+    "ai-agents",
+    "agent-framework",
+    "agentic",
+    "llm",
+    "ai",
+    "tool-use",
+    "guardrails",
+    "mcp",
+    "anthropic",
+    "claude",
+    "openai",
+    "gemini",
+    "async",
+    "toolkit",
+]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Framework :: AsyncIO",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
     "Typing :: Typed",
 ]
 dependencies = []
@@ -51,11 +72,15 @@ docs = [
     "mkdocstrings[python]>=0.26",
     "mkdocs-gen-files>=0.5",
     "mkdocs-literate-nav>=0.6",
+    "mkdocs-llmstxt>=0.2",
 ]
 
 [project.urls]
-Homepage = "https://github.com/skwijeratne/agentix-toolkit"
+Homepage = "https://skwijeratne.github.io/agentix-toolkit/"
+Documentation = "https://skwijeratne.github.io/agentix-toolkit/"
 Repository = "https://github.com/skwijeratne/agentix-toolkit"
+Changelog = "https://github.com/skwijeratne/agentix-toolkit/blob/main/CHANGELOG.md"
+Issues = "https://github.com/skwijeratne/agentix-toolkit/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/agentix"]

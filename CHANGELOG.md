@@ -7,6 +7,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- Discoverability — the docs site now publishes [`llms.txt`](https://llmstxt.org/)
+  and `llms-full.txt` (a curated and a full-text, LLM-friendly index of the docs)
+  so AI coding assistants can read it cleanly; broader PyPI `keywords` and trove
+  `classifiers` (AI / async / typed); PyPI project links (Documentation,
+  Changelog, Issues) so the docs link shows on the project page; and GitHub repo
+  topics.
 - Documentation site (P17) — a Material for MkDocs site with a beginner-friendly
   getting-started, ~12 task guides (each linking a runnable example), a plain-
   language **security model** writeup, and a full **API reference** generated from

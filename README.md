@@ -7,6 +7,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
 
 📖 **[Documentation](https://skwijeratne.github.io/agentix-toolkit/)** — getting started, guides, the security model, and the full API reference.
+Using an AI coding assistant? It can read [`/llms.txt`](https://skwijeratne.github.io/agentix-toolkit/llms.txt) (or the full‑text [`/llms-full.txt`](https://skwijeratne.github.io/agentix-toolkit/llms-full.txt)) for a clean, LLM-friendly index of the docs.
 
 A generic, batteries-included **agent toolkit**. The agent loop, tool-calling,
 guards, persistence, and observability are wiring you *configure* — not
